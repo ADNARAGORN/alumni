@@ -41,9 +41,13 @@
                 "type": "object",
                 "properties": {
                   "name": { "type": "string" },
+                  "email": { "type": "string", "example": "user@example.com" },
                   "graduationYear": { "type": "number" },
-                  "company": { "type": "string" }
-                }
+                  "department": { "type": "string" },
+                  "company": { "type": "string" },
+                  "jobTitle": { "type": "string" }
+                },
+                "required": ["email"]
               }
             }
           }

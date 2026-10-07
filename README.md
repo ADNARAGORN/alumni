@@ -29,14 +29,50 @@ Temel amacımız; mezunların kariyer yolculuklarını takip etmek, öğrenciler
 
 ---
 
-## 🏛️ Sistem Mimarisi
+## 🏛️ Mimari Yapı: Model-View-Controller (MVC)
+
+Bu proje, kodun sürdürülebilirliğini, okunabilirliğini ve sorumlulukların ayrıştırılmasını (Separation of Concerns) sağlamak amacıyla **MVC (Model-View-Controller)** mimari deseni temel alınarak tasarlanmıştır.
+
+### 📐 MVC Bileşenleri ve Sorumluluk Dağılımı
 
 ```mermaid
 graph TD
-    User([Kullanıcı / Tarayıcı]) -->|HTTP / REST| Frontend[Frontend Arayüzü]
-    Frontend -->|API İstekleri| Backend[Node.js / Express API]
-    Backend -->|CRUD İşlemleri| DB[(Veritabanı)]
+    Client([İstemci / Tarayıcı / Postman]) -->|HTTP İstekleri| Routes[Routes / Router]
+    Routes -->|Yönlendirme| Controller[Controller: İş Mantığı & Durum Yönetimi]
+    Controller -->|Veri & Kural Doğrulama| Model[Model: Veri Yapısı & Validasyon]
+    Model -->|İşlenmiş Veri| Controller
+    Controller -->|Çıktı Formatı| View[View: JSON / HTML Arayüz]
+    View -->|HTTP Yanıtı| Client
 ```
+
+#### 1. 🛣️ Routes (Yönlendirme Katmanı - Table of Contents)
+* **Görevi:** Gelen HTTP isteklerini (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`) karşılar ve ilgili Controller fonksiyonuna yönlendirir.
+* **Kural:** Rotalar içinde doğrudan iş mantığı, veri manipülasyonu veya kural kontrolleri barındırılmaz; rota bir "içindekiler tablosu" gibi yalnızca adresleme yapar.
+
+#### 2. 🧠 Controller (Yönetici & Akış Katmanı)
+* **Görevi:** İstemciden gelen isteği (`req`) okur, parametreleri ayrıştırır, Model ile iletişim kurar ve istemciye uygun HTTP durum kodu (`200`, `201`, `400`, `404`) ile yanıtı (`res`) döner.
+* **Kural:** Verinin nasıl saklandığını veya fiziksel yapısını bilmez; iş akışını yönetir ve Model'den dönen sonuca göre yanıtı şekillendirir.
+
+#### 3. 📦 Model (Veri & Kurallar - Data & Validation)
+* **Görevi:** Veri yapısını, veri kaynağını (bellek içi liste veya ilişkisel veritabanı) ve iş kurallarını (`Rules & Validation`) tek bir merkezde barındırır.
+* **Kural (One Rule, One Place):** İş ve doğrulama kuralları (örneğin: *"Her kullanıcının e-posta adresi zorunludur"*) rotalarda veya controller içinde tekrarlanmaz; doğrudan Model katmanında tek bir yerde tanımlanır. Veritabanına geçildiğinde controller veya view değişmeden sadece Model güncellenir.
+
+#### 4. 👁️ View (Görünüm & Çıktı Katmanı - Two Faces)
+* **Görevi:** İstemciye sunulacak çıktıyı biçimlendirir.
+* **Kural:** Sistem aynı veri için iki farklı yüz sunabilir:
+  * **Programlar / API İstemcileri için:** JSON çıktısı (`res.json()`),
+  * **Son kullanıcılar için:** HTML sayfaları / Tablo arayüzü (`res.sendFile()` veya şablon motorları).
+
+### ⚖️ Architectural Comparison: `ApiUserController` vs `UserController`
+
+| Feature | `ApiUserController` (API / Machine Interface) | `UserController` (Web / Human Interface) |
+| :--- | :--- | :--- |
+| **Target Audience** | **Machines & Clients** (Postman, mobile apps, SPA frontend) | **End Users & Humans** (Standard web browser navigation) |
+| **Response Format** | Raw **JSON** (`res.status().json(...)`) | Rendered **HTML** UI & Tables (`res.send(html)`) |
+| **Visual Styling** | None (pure key-value data structures) | Responsive layouts, CSS styling, cards, and tables |
+| **HTTP Status Codes** | Strict REST semantics (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`) | Primarily `200 OK` for rendered views, redirects for actions |
+| **Error Handling** | JSON error payloads (`{ "error": "email required" }`) | Human-readable HTML alerts, error pages, or view banners |
+| **Route Prefix** | `/api/users` | `/users` |
 
 ---
 
