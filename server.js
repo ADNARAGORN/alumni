@@ -75,7 +75,7 @@ app.get('/api/users/:id', (req, res) => {
     }
 });
 
-// 5. ADIM: Kullanıcı Güncelle (PUT)
+// 5. ADIM: Kullanıcı Güncelle (PUT - Tam Değiştirme)
 app.put('/api/users/:id', (req, res) => {
     const istenenId = parseInt(req.params.id);
     const guncelBilgiler = req.body;
@@ -84,7 +84,25 @@ app.put('/api/users/:id', (req, res) => {
     if (index !== -1) {
         users[index] = { id: istenenId, ...guncelBilgiler };
         res.json({
-            message: "Kullanıcı başarıyla güncellendi!",
+            message: "Kullanıcı başarıyla güncellendi! (PUT)",
+            user: users[index]
+        });
+    } else {
+        res.status(404).json({ message: "Güncellenecek kullanıcı bulunamadı!" });
+    }
+});
+
+// 5b. ADIM: Kullanıcı Kısmi Güncelle (PATCH - Kısmi Değiştirme)
+app.patch('/api/users/:id', (req, res) => {
+    const istenenId = parseInt(req.params.id);
+    const kismiBilgiler = req.body;
+    const index = users.findIndex(u => u.id === istenenId);
+
+    if (index !== -1) {
+        // Var olan bilgileri koruyup sadece gelen alanları güncelliyoruz
+        users[index] = { ...users[index], ...kismiBilgiler, id: istenenId };
+        res.json({
+            message: "Kullanıcı kısmi olarak güncellendi! (PATCH)",
             user: users[index]
         });
     } else {
@@ -110,6 +128,11 @@ app.delete('/api/users/:id', (req, res) => {
 
 // 7. ADIM: Swagger API Dokümantasyonu
 app.use('/api/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// /swagger adresine girilirse otomatik olarak /api/swagger'a yönlendir
+app.get('/swagger', (req, res) => {
+    res.redirect('/api/swagger');
+});
 
 // 2. Hafta Diğer API'ler
 app.get('/hello', (req, res) => res.send("Hello, World!"));

@@ -73,7 +73,7 @@
         }
       },
       "put": {
-        "summary": "Kullanıcıyı günceller",
+        "summary": "Kullanıcıyı günceller (Tüm alanlar)",
         "parameters": [
           {
             "in": "path",
@@ -90,7 +90,43 @@
                 "type": "object",
                 "properties": {
                   "name": { "type": "string" },
-                  "company": { "type": "string" }
+                  "graduationYear": { "type": "number" },
+                  "department": { "type": "string" },
+                  "company": { "type": "string" },
+                  "jobTitle": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Başarılı"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Kullanıcıyı kısmi günceller (Sadece gönderilen alanlar)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "graduationYear": { "type": "number" },
+                  "department": { "type": "string" },
+                  "company": { "type": "string" },
+                  "jobTitle": { "type": "string" }
                 }
               }
             }

@@ -77,7 +77,7 @@ Sunucu varsayılan olarak `http://localhost:3000` adresinde çalışacaktır.
 Projede yer alan tüm RESTful API servisleri **Swagger UI (OpenAPI)** standartlarına uygun olarak dokümante edilmiştir. Swagger arayüzü sayesinde, kodlara bakmanıza gerek kalmadan tüm endpoint'leri tarayıcınız üzerinden görsel olarak inceleyebilir ve interaktif şekilde test edebilirsiniz.
 
 Projeyi çalıştırdıktan sonra tarayıcınızdan aşağıdaki adrese giderek dokümantasyona ulaşabilirsiniz:
-👉 **`http://localhost:3000/api-docs`**
+👉 **`http://localhost:3000/api/swagger`**
 
 ---
 
@@ -91,8 +91,9 @@ Geliştirilmekte olan sisteme ait temel RESTful servisler aşağıdaki tabloda l
 | **`GET`** | `/api/users` | Sistemdeki tüm kullanıcıları listeler | `200 OK` |
 | **`POST`** | `/api/users` | Yeni bir kullanıcı / mezun kaydeder | `201 Created` |
 | **`GET`** | `/api/users/:id` | ID'si verilen kullanıcının detaylarını getirir | `200 OK` |
-| **`PUT`** | `/api/users/:id` | Kullanıcı bilgilerini günceller | `200 OK` |
-| **`DELETE`**| `/api/users/:id` | İlgili kullanıcıyı sistemden siler | `204 No Content` |
+| **`PUT`** | `/api/users/:id` | Kullanıcı bilgilerini tamamen günceller | `200 OK` |
+| **`PATCH`**| `/api/users/:id` | Kullanıcı bilgilerini kısmi olarak günceller | `200 OK` |
+| **`DELETE`**| `/api/users/:id` | İlgili kullanıcıyı sistemden siler | `204 No Content` / `200 OK` |
 
 ---
 
