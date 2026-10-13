@@ -158,6 +158,140 @@
           }
         }
       }
+    },
+    "/api/announcements": {
+      "get": {
+        "summary": "Tüm duyuruları listeler",
+        "responses": {
+          "200": {
+            "description": "Başarılı"
+          }
+        }
+      },
+      "post": {
+        "summary": "Yeni bir duyuru oluşturur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string", "example": "2026 Kariyer Günü" },
+                  "content": { "type": "string", "example": "Kariyer günü etkinliği detayları..." },
+                  "author": { "type": "string", "example": "Kariyer Merkezi" },
+                  "category": { "type": "string", "example": "Kariyer" }
+                },
+                "required": ["title", "content"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Duyuru Oluşturuldu"
+          }
+        }
+      }
+    },
+    "/api/announcements/{id}": {
+      "get": {
+        "summary": "ID'ye göre tek duyuru getirir",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Başarılı"
+          }
+        }
+      },
+      "put": {
+        "summary": "Duyuruyu günceller (Tüm alanlar)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "content": { "type": "string" },
+                  "author": { "type": "string" },
+                  "category": { "type": "string" }
+                },
+                "required": ["title", "content"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Başarılı"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Duyuruyu kısmi günceller",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "content": { "type": "string" },
+                  "author": { "type": "string" },
+                  "category": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Başarılı"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Duyuruyu siler",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Silindi"
+          }
+        }
+      }
     }
   }
 }

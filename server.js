@@ -30,10 +30,14 @@ app.get('/api/health', (req, res) => {
 // MVC Rotaları (Routes Katmanı)
 const apiUserRoutes = require('./routes/apiUserRoutes');
 const userRoutes = require('./routes/userRoutes');
+const apiAnnouncementRoutes = require('./routes/apiAnnouncementRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
 
 // Rotaları Express'e bağlama
 app.use('/api/users', apiUserRoutes);
 app.use('/users', userRoutes);
+app.use('/api/announcements', apiAnnouncementRoutes);
+app.use('/announcements', announcementRoutes);
 
 // 7. ADIM: Swagger API Dokümantasyonu
 app.use('/api/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

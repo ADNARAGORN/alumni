@@ -130,6 +130,17 @@ Geliştirilmekte olan sisteme ait temel RESTful servisler aşağıdaki tabloda l
 | **`PUT`** | `/api/users/:id` | Kullanıcı bilgilerini tamamen günceller | `200 OK` |
 | **`PATCH`**| `/api/users/:id` | Kullanıcı bilgilerini kısmi olarak günceller | `200 OK` |
 | **`DELETE`**| `/api/users/:id` | İlgili kullanıcıyı sistemden siler | `204 No Content` / `200 OK` |
+| **`GET`** | `/api/announcements` | Tüm duyuruları listeler | `200 OK` |
+| **`POST`** | `/api/announcements` | Yeni duyuru oluşturur | `201 Created` |
+| **`GET`** | `/api/announcements/:id` | ID'si verilen duyuruyu getirir | `200 OK` |
+| **`PUT`** | `/api/announcements/:id` | Duyuruyu tamamen günceller | `200 OK` |
+| **`PATCH`**| `/api/announcements/:id` | Duyuruyu kısmi olarak günceller | `200 OK` |
+| **`DELETE`**| `/api/announcements/:id` | İlgili duyuruyu siler | `200 OK` |
+
+### 🖥️ Web Kullanıcı Arayüzleri (HTML Views)
+* **Kullanıcı Yönetimi:** `http://localhost:3000/users`
+* **Duyuru Yönetimi:** `http://localhost:3000/announcements`
+* **Swagger Dokümantasyonu:** `http://localhost:3000/api/swagger`
 
 ---
 
