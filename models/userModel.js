@@ -21,10 +21,30 @@ let users = [
         company: "Amazon",
         jobTitle: "Data Scientist",
         skills: ["Python", "SQL"]
+    },
+    {
+        id: 3,
+        name: "Adnan Takta",
+        email: "adnan@example.com",
+        graduationYear: 2024,
+        department: "Yönetim Bilişim Sistemleri",
+        company: "Google",
+        jobTitle: "Frontend Developer",
+        skills: ["React", "TypeScript", "Node.js"]
+    },
+    {
+        id: 4,
+        name: "Elif Kaya",
+        email: "elif@example.com",
+        graduationYear: 2024,
+        department: "Yönetim Bilişim Sistemleri",
+        company: "Trendyol",
+        jobTitle: "Backend Developer",
+        skills: ["Node.js", "Express", "PostgreSQL"]
     }
 ];
 
-let nextId = 3;
+let nextId = 5;
 
 class UserModel {
     // Slayttaki kural: validate(user) -> email required

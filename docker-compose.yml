@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # 🗄️ Veritabanı Servisi (PostgreSQL)
+  # ddd.md ve README.md içerisindeki ilişkisel veri modeli (RDBMS) gereksinimlerine göre yapılandırılmıştır.
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: alumni_postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-alumni_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-alumni_password_2026}
+      POSTGRES_DB: ${DB_NAME:-alumni_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      # 🚨 "THE FORGETTING TEST" ÇÖZÜMÜ (Kalıcılık / Persistence):
+      # docker compose down yapılsa dahi verilerin silinmemesi için
+      # PostgreSQL veri dizini ana makinede adlandırılmış bir Volume'e bağlanmıştır.
+      - postgres_data:/var/lib/postgresql/data
+      # Başlangıçta tabloları otomatik oluşturmak için SQL init script bağlama noktası:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - alumni_network
+
+  # 🌐 Backend Uygulama Servisi (Node.js Express API)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: alumni_app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: postgres_db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-alumni_user}
+      DB_PASSWORD: ${DB_PASSWORD:-alumni_password_2026}
+      DB_NAME: ${DB_NAME:-alumni_db}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres_db
+    volumes:
+      # Geliştirme kolaylığı için canlı kod senkronizasyonu
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - alumni_network
+
+# 💾 Kalıcı Depolama Alanı (Named Volume)
+# Konteynerler dursa veya silinse dahi veritabanı verileri burada güvenle saklanır.
+volumes:
+  postgres_data:
+    driver: local
+
+# 🔗 Servislerin kendi arasında haberleşeceği izole ağ
+networks:
+  alumni_network:
+    driver: bridge

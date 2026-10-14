@@ -144,6 +144,11 @@ Geliştirilmekte olan sisteme ait temel RESTful servisler aşağıdaki tabloda l
 
 ---
 
+## 📐 Veri Tasarımı Dokümantasyonu (Data Design Documentation)
+> Detaylı veri sözlüğü, alan kısıtları, model doğrulama kuralları ve kalıcı veritabanı geçiş planı için lütfen [Data Design Documentation (ddd.md)](./ddd.md) dosyasını inceleyin.
+
+---
+
 ## 🗄️ Veritabanı Şeması Taslağı
 
 ```mermaid

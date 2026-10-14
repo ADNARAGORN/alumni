@@ -14,16 +14,19 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
+const DatabaseConnection = require('./config/db');
+
 // 2. Hafta - Ana Sayfa
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 1. ADIM: Health Check
+// 1. ADIM: Health Check (Veritabanı bağlantı durumunu da gösterir)
 app.get('/api/health', (req, res) => {
     res.json({
         status: "success",
-        message: "Server is healthy and running!"
+        message: "Server is healthy and running!",
+        database: DatabaseConnection.getStatus()
     });
 });
 
@@ -62,7 +65,10 @@ app.get('/about', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'about.html'));
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
     console.log(`Sunucu çalışıyor: http://localhost:${port}`);
     console.log(`Swagger dokümantasyonu için: http://localhost:${port}/api/swagger`);
+    
+    // Veritabanı bağlantısını başlat ve arayüzleri tohumla
+    await DatabaseConnection.connect();
 });

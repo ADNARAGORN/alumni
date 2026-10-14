@@ -4,6 +4,8 @@
   "description": "Bu proje, **Web Programlama** dersi kapsamında geliştirilen, üniversite mezunları ile mevcut öğrencileri bir araya getiren kapsamlı bir **Mezun Takip Sistemi** platformudur.",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
+    "seed": "node database/seeds/databaseSeeder.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,6 +21,7 @@
   },
   "homepage": "https://github.com/ADNARAGORN/alumni#readme",
   "dependencies": {
+    "dotenv": "^18.0.7",
     "express": "^5.2.1",
     "swagger-ui-express": "^5.0.1"
   }
