@@ -62,9 +62,21 @@ class UserModel {
         return users;
     }
 
-    // CRUD: Read (One)
-    static findById(id) {
-        return users.find(u => u.id === Number(id)) || null;
+    // CRUD: Read (One) - include: 'jobs' opsiyonu ile (Relationship desteği)
+    static findById(id, options = {}) {
+        const user = users.find(u => u.id === Number(id));
+        if (!user) return null;
+
+        // İlişkili veri çekme (Include / Join mantığı)
+        if (options.include && options.include.includes('jobs')) {
+            const JobPostingModel = require('./jobPostingModel');
+            return {
+                ...user,
+                jobs: JobPostingModel.findByUserId(user.id)
+            };
+        }
+
+        return user;
     }
 
     // CRUD: Create
@@ -121,13 +133,18 @@ class UserModel {
         return users[index];
     }
 
-    // CRUD: Delete
+    // CRUD: Delete - CASCADE kuralı ile ilişkili ilanları da temizler
     static delete(id) {
         const index = users.findIndex(u => u.id === Number(id));
         if (index === -1) {
             return null;
         }
         const [deletedUser] = users.splice(index, 1);
+
+        // CASCADE DELETE: Kullanıcının açtığı iş ilanlarını da sil
+        const JobPostingModel = require('./jobPostingModel');
+        JobPostingModel.deleteByUserId(deletedUser.id);
+
         return deletedUser;
     }
 }

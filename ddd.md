@@ -46,6 +46,42 @@ Mezunlar Ofisi veya Kariyer Merkezi tarafından paylaşılan etkinlik, iş ve bu
 
 ---
 
+### 💼 2.3. `JobPosting` (İş İlanı Modeli - `job_postings`)
+Mezun veya işveren kullanıcılar tarafından açılan kariyer ve staj ilanlarını temsil eder. Her ilan kesinlikle tek bir kullanıcıya aittir (**One-to-Many**).
+
+| Alan Adı (Field) | Veri Tipi | Zorunlu mu? | Varsayılan | Kısıt / Doğrulama Kuralı | Açıklama |
+| :--- | :--- | :---: | :---: | :--- | :--- |
+| `id` | `INTEGER` | Evet | Otomatik Artan (PK) | Benzersiz, pozitif tam sayı | İlanın tekil kimliği |
+| `user_id` | `INTEGER` | **Evet (Zorunlu)** | - | `FK -> users.id` | İlanı oluşturan kullanıcının kimliği (URL'den `:id` ile gelir) |
+| `title` | `VARCHAR(150)` | **Evet (Zorunlu)** | - | Boş olamaz, min 2 karakter | Pozisyon başlığı (Örn: "Junior Developer") |
+| `company` | `VARCHAR(150)` | **Evet (Zorunlu)** | - | Boş olamaz | Şirket / Kurum adı (Örn: "Acme") |
+| `location` | `VARCHAR(100)` | Hayır | "İstanbul (Hibrit)" | - | Çalışma lokasyonu / şekli |
+| `description` | `TEXT` | Hayır | `NULL` | - | İlan detayları ve gereksinimler |
+| `created_at` | `TIMESTAMP` | Evet | `CURRENT_TIMESTAMP` | - | İlanın sisteme girildiği tarih/saat |
+
+#### 🗑️ Silme Kuralı Kararı (The Delete Rule Decision):
+* **Seçilen Kural:** `CASCADE` (veya alternatif olarak `RESTRICT`).
+* **Karar & Gerekçe:** Sistemde bir kullanıcı hesabı silindiğinde (`DELETE /api/users/:id`), o kullanıcının açtığı iş ilanlarının veritabanında sahipsiz (yetim / orphaned) kalmaması için ilişkili ilanlar da otomatik olarak silinir (`ON DELETE CASCADE`). İlanların korunması istenirse silme işlemi engellenerek `RESTRICT` ile `409 Conflict` dönülebilir; bu mimaride kullanıcı ile açtığı ilanlar doğrudan bağlantılı kabul edilmiştir.
+
+---
+
+### 📝 2.4. `Application` (İş Başvurusu Modeli - `applications`)
+Kullanıcılar ile iş ilanları arasındaki **Many-to-Many (Çoka-Çok)** ilişkiyi kuran ara tablodur (Join Table). Her satır tek bir kullanıcı-ilan eşleşmesini temsil eder.
+
+| Alan Adı (Field) | Veri Tipi | Zorunlu mu? | Varsayılan | Kısıt / Doğrulama Kuralı | Açıklama |
+| :--- | :--- | :---: | :---: | :--- | :--- |
+| `id` | `INTEGER` | Evet | Otomatik Artan (PK) | Benzersiz, pozitif tam sayı | Başvurunun tekil kimliği |
+| `user_id` | `INTEGER` | **Evet (Zorunlu)** | - | `FK -> users.id` | Başvuran kullanıcının kimliği |
+| `job_posting_id` | `INTEGER` | **Evet (Zorunlu)** | - | `FK -> job_postings.id` | Başvurulan iş ilanının kimliği |
+| `status` | `VARCHAR(50)` | Evet | "applied" | `applied`, `interview`, `accepted`, `rejected` | Başvuru süreci durumu |
+| `created_at` | `TIMESTAMP` | Evet | `CURRENT_TIMESTAMP` | - | Başvuru tarihi/saati |
+
+#### 🛡️ Mükerrer Başvuru Kısıtı (Unique Pair Constraint):
+* **Kural:** `UNIQUE (user_id, job_posting_id)`
+* **Karar & Gerekçe:** Bir kullanıcı aynı ilana birden fazla kez başvuramaz. Aynı çift tekrar gönderilmeye çalışıldığında veritabanı isteği reddeder ve API katmanı **`409 Conflict`** yanıtı döner.
+
+---
+
 ## 🔗 3. Varlık İlişki Diyagramı (Entity Relationship Diagram - ERD)
 
 Gelecekte bağlanacak veritabanında varlıkların birbiriyle olan ilişkisi:
@@ -53,6 +89,9 @@ Gelecekte bağlanacak veritabanında varlıkların birbiriyle olan ilişkisi:
 ```mermaid
 erDiagram
     USERS ||--o{ ANNOUNCEMENTS : yayinlar
+    USERS ||--o{ JOB_POSTINGS : olusturur
+    USERS ||--o{ APPLICATIONS : basvurur
+    JOB_POSTINGS ||--o{ APPLICATIONS : alir
     USERS {
         int id PK
         string name
@@ -69,6 +108,22 @@ erDiagram
         text content
         string category
         date date
+    }
+    JOB_POSTINGS {
+        int id PK
+        int user_id FK
+        string title
+        string company
+        string location
+        text description
+        timestamp created_at
+    }
+    APPLICATIONS {
+        int id PK
+        int user_id FK
+        int job_posting_id FK
+        string status
+        timestamp created_at
     }
 ```
 

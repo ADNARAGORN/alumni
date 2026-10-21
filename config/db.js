@@ -37,17 +37,27 @@ class DatabaseConnection {
     static autoSeed() {
         const UserModel = require('../models/userModel');
         const AnnouncementModel = require('../models/announcementModel');
+        const JobPostingModel = require('../models/jobPostingModel');
+        const JobPostingFactory = require('../database/factories/jobPostingFactory');
 
-        // Kullanıcılar zaten varsa üzerine 10 yeni mezun daha ekleyip zenginleştir
-        const seedUsers = UserFactory.createMany(10);
+        // Kullanıcılar zaten varsa üzerine 5 yeni mezun daha ekleyip zenginleştir
+        const seedUsers = UserFactory.createMany(5);
         seedUsers.forEach(u => UserModel.create(u));
 
-        // Duyuruları 5 yeni duyuruyla zenginleştir
-        const seedAnnouncements = AnnouncementFactory.createMany(5);
+        // Duyuruları 3 yeni duyuruyla zenginleştir
+        const seedAnnouncements = AnnouncementFactory.createMany(3);
         seedAnnouncements.forEach(a => AnnouncementModel.create(a));
+
+        // İş İlanlarını tohumla (One-to-Many Seed: mevcut kullanıcılara bağla)
+        const allUserIds = UserModel.findAll().map(u => u.id);
+        const seedJobs = JobPostingFactory.createMany(6, allUserIds);
+        seedJobs.forEach(j => JobPostingModel.createForUser(j.userId, j.data));
 
         console.log('🚀 [Database] CRUD Arayüzleri veritabanı tohumlamasıyla dolduruldu!');
         console.log(`   Toplam Mezun: ${UserModel.findAll().length}`);
+        console.log(`   Toplam Duyuru: ${AnnouncementModel.findAll().length}`);
+        console.log(`   Toplam İş İlanı: ${JobPostingModel.findAll().length}`);
+    }
         console.log(`   Toplam Duyuru: ${AnnouncementModel.findAll().length}`);
     }
 
