@@ -58,8 +58,6 @@ class DatabaseConnection {
         console.log(`   Toplam Duyuru: ${AnnouncementModel.findAll().length}`);
         console.log(`   Toplam İş İlanı: ${JobPostingModel.findAll().length}`);
     }
-        console.log(`   Toplam Duyuru: ${AnnouncementModel.findAll().length}`);
-    }
 
     // Sağlık kontrolü (Healthcheck) için durum döner
     static getStatus() {

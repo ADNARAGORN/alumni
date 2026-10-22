@@ -37,6 +37,7 @@ const apiAnnouncementRoutes = require('./routes/apiAnnouncementRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const apiJobRoutes = require('./routes/apiJobRoutes');
 const apiApplicationRoutes = require('./routes/apiApplicationRoutes');
+const jobWebRoutes = require('./routes/jobWebRoutes');
 
 // Rotaları Express'e bağlama
 app.use('/api/users', apiUserRoutes);
@@ -45,6 +46,7 @@ app.use('/api/announcements', apiAnnouncementRoutes);
 app.use('/announcements', announcementRoutes);
 app.use('/api/jobs', apiJobRoutes);
 app.use('/api/applications', apiApplicationRoutes);
+app.use('/', jobWebRoutes); // /jobs ve /applications web arayüzleri
 
 // 7. ADIM: Swagger API Dokümantasyonu
 app.use('/api/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
