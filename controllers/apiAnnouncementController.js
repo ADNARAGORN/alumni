@@ -3,17 +3,17 @@ const AnnouncementModel = require('../models/announcementModel');
 
 class ApiAnnouncementController {
     // GET /api/announcements - Tüm duyuruları listele
-    static getAllAnnouncements(req, res) {
+    static getAllAnnouncements(req, res, next) {
         try {
             const announcements = AnnouncementModel.findAll();
             return res.status(200).json(announcements);
         } catch (error) {
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // GET /api/announcements/:id - Tekil duyuru getir
-    static getAnnouncementById(req, res) {
+    static getAnnouncementById(req, res, next) {
         try {
             const item = AnnouncementModel.findById(req.params.id);
             if (!item) {
@@ -21,12 +21,12 @@ class ApiAnnouncementController {
             }
             return res.status(200).json(item);
         } catch (error) {
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // POST /api/announcements - Yeni duyuru oluştur
-    static createAnnouncement(req, res) {
+    static createAnnouncement(req, res, next) {
         try {
             const newItem = AnnouncementModel.create(req.body);
             return res.status(201).json({
@@ -37,12 +37,12 @@ class ApiAnnouncementController {
             if (error.message.startsWith('VALIDATION_ERROR')) {
                 return res.status(400).json({ error: error.message });
             }
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // PUT /api/announcements/:id - Duyuruyu tamamen güncelle
-    static updateAnnouncement(req, res) {
+    static updateAnnouncement(req, res, next) {
         try {
             const updated = AnnouncementModel.update(req.params.id, req.body);
             if (!updated) {
@@ -56,12 +56,12 @@ class ApiAnnouncementController {
             if (error.message.startsWith('VALIDATION_ERROR')) {
                 return res.status(400).json({ error: error.message });
             }
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // PATCH /api/announcements/:id - Duyuruyu kısmi güncelle
-    static patchAnnouncement(req, res) {
+    static patchAnnouncement(req, res, next) {
         try {
             const patched = AnnouncementModel.patch(req.params.id, req.body);
             if (!patched) {
@@ -75,12 +75,12 @@ class ApiAnnouncementController {
             if (error.message.startsWith('VALIDATION_ERROR')) {
                 return res.status(400).json({ error: error.message });
             }
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // DELETE /api/announcements/:id - Duyuruyu sil
-    static deleteAnnouncement(req, res) {
+    static deleteAnnouncement(req, res, next) {
         try {
             const deleted = AnnouncementModel.delete(req.params.id);
             if (!deleted) {
@@ -91,7 +91,7 @@ class ApiAnnouncementController {
                 deletedItem: deleted
             });
         } catch (error) {
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 }

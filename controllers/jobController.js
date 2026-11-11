@@ -6,14 +6,14 @@ const JobViews = require('../views/jobViews');
 
 class JobController {
     // 1. İŞ İLANLARI SAYFASI (GET /jobs)
-    static renderJobsPage(req, res) {
+    static renderJobsPage(req, res, next) {
         try {
             const jobs = JobPostingModel.findAll();
             const users = UserModel.findAll();
             const html = JobViews.renderJobsPage(jobs, users, req.query.error, req.query.success);
             return res.status(200).send(html);
         } catch (error) {
-            return res.status(500).send(`<h1>Sunucu Hatası</h1><p>${error.message}</p>`);
+            return next(error);
         }
     }
 
@@ -62,7 +62,7 @@ class JobController {
     }
 
     // 4. TÜM BAŞVURULARI LİSTELE (GET /applications)
-    static renderAllApplications(req, res) {
+    static renderAllApplications(req, res, next) {
         try {
             const applications = ApplicationModel.findAll();
             const users = UserModel.findAll();
@@ -70,12 +70,12 @@ class JobController {
             const html = JobViews.renderApplicationsPage(applications, users, jobs, null, req.query.error, req.query.success);
             return res.status(200).send(html);
         } catch (error) {
-            return res.status(500).send(`<h1>Sunucu Hatası</h1><p>${error.message}</p>`);
+            return next(error);
         }
     }
 
     // 5. BELİRLİ BİR İLANA GELEN BAŞVURULARI LİSTELE (GET /jobs/:id/applications)
-    static renderJobApplications(req, res) {
+    static renderJobApplications(req, res, next) {
         try {
             const jobId = req.params.id;
             const targetJob = JobPostingModel.findById(jobId);
@@ -89,7 +89,7 @@ class JobController {
             const html = JobViews.renderApplicationsPage(applications, users, jobs, targetJob, req.query.error, req.query.success);
             return res.status(200).send(html);
         } catch (error) {
-            return res.status(500).send(`<h1>Sunucu Hatası</h1><p>${error.message}</p>`);
+            return next(error);
         }
     }
 

@@ -5,8 +5,15 @@ const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
+const loggerMiddleware = require('./middleware/loggerMiddleware');
+const notFoundGuardian = require('./middleware/notFoundMiddleware');
+const errorGuardian = require('./middleware/errorMiddleware');
+
 const app = express();
 const port = 3000;
+
+// 1. SIRADAKİ MIDDLEWARE: Her isteği terminale logla (Logger)
+app.use(loggerMiddleware);
 
 app.use(express.static('public'));
 app.use(express.json());
@@ -70,6 +77,17 @@ app.get('/sum/:number1/:number2', (req, res) => {
 app.get('/about', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'about.html'));
 });
+
+// Generic 404 Sayfası
+app.get('/404', (req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+});
+
+// 404 Guardian Middleware: Tanımlanmayan tüm rotaları yakalar (web isteklerini /404'e yönlendirir)
+app.use(notFoundGuardian);
+
+// 5xx Guardian Middleware: Tüm beklenmeyen sunucu hatalarını en sonda yakalar
+app.use(errorGuardian);
 
 app.listen(port, async () => {
     console.log(`Sunucu çalışıyor: http://localhost:${port}`);

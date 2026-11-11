@@ -14,7 +14,7 @@ MVC mimarisinde **Model** katmanı tek bir kural merkezidir (*"One rule, one pla
 
 ## 🏛️ 2. Veri Modelleri ve Alan Tanımları (Data Dictionary)
 
-Sistem şu an iki ana varlık (Entity) üzerinden modellenmektedir:
+Sistem şu an dört ana varlık (Entity) üzerinden modellenmektedir:
 
 ### 👤 2.1. `User` (Kullanıcı / Mezun Modeli)
 Sistemdeki mezunların, öğrencilerin veya sistem yöneticilerinin temel profil verilerini temsil eder.
@@ -52,12 +52,19 @@ Mezun veya işveren kullanıcılar tarafından açılan kariyer ve staj ilanlar�
 | Alan Adı (Field) | Veri Tipi | Zorunlu mu? | Varsayılan | Kısıt / Doğrulama Kuralı | Açıklama |
 | :--- | :--- | :---: | :---: | :--- | :--- |
 | `id` | `INTEGER` | Evet | Otomatik Artan (PK) | Benzersiz, pozitif tam sayı | İlanın tekil kimliği |
-| `user_id` | `INTEGER` | **Evet (Zorunlu)** | - | `FK -> users.id` | İlanı oluşturan kullanıcının kimliği (URL'den `:id` ile gelir) |
-| `title` | `VARCHAR(150)` | **Evet (Zorunlu)** | - | Boş olamaz, min 2 karakter | Pozisyon başlığı (Örn: "Junior Developer") |
-| `company` | `VARCHAR(150)` | **Evet (Zorunlu)** | - | Boş olamaz | Şirket / Kurum adı (Örn: "Acme") |
-| `location` | `VARCHAR(100)` | Hayır | "İstanbul (Hibrit)" | - | Çalışma lokasyonu / şekli |
-| `description` | `TEXT` | Hayır | `NULL` | - | İlan detayları ve gereksinimler |
+| `user_id` | `INTEGER` | **Evet (Zorunlu)** | - | `FK -> users.id`, pozitif tam sayı olmalı (yoksa 404) | İlanı oluşturan kullanıcının kimliği (URL'den `:id` ile gelir) |
+| `title` | `VARCHAR(120)` | **Evet (Zorunlu)** | - | String, boş olamaz (`trim`), min 2 / **maks 120 karakter** | Pozisyon başlığı (Örn: "Junior Developer") |
+| `company` | `VARCHAR(150)` | **Evet (Zorunlu)** | - | String, boş olamaz (`trim`), min 2 / maks 150 karakter | Şirket / Kurum adı (Örn: "Acme") |
+| `city` *(veya `location`)* | `VARCHAR(100)` | Hayır *(Opsiyonel)* | `NULL` / "İstanbul (Hibrit)" | Gönderilirse string olmalı, maks 100 karakter | İlanın bulunduğu şehir / çalışma lokasyonu |
+| `description` | `TEXT` | Hayır *(Opsiyonel)* | `NULL` | Gönderilirse string olmalı, maks 2000 karakter | İlan detayları ve gereksinimler |
 | `created_at` | `TIMESTAMP` | Evet | `CURRENT_TIMESTAMP` | - | İlanın sisteme girildiği tarih/saat |
+
+#### 📏 `JobPosting` Doğrulama Kuralları (Validation Rules):
+1. **`title` (Zorunlu):** İstek gövdesinde mutlaka bulunmalıdır, metin (`string`) tipinde olmalı, yalnızca boşluk karakterlerinden oluşamaz (`trim()` sonrası min 2 karakter) ve **en fazla 120 karakter** olabilir.
+2. **`company` (Zorunlu):** İstek gövdesinde mutlaka bulunmalıdır, metin (`string`) tipinde olmalı, boşluklar temizlendikten sonra en az 2, en fazla 150 karakter olmalıdır.
+3. **`city` / `location` (Opsiyonel):** Gönderilmek zorunda değildir; ancak gönderilirse metin (`string`) tipinde ve en fazla 100 karakter olmalıdır.
+4. **`description` (Opsiyonel):** Gönderilmek zorunda değildir; ancak gönderilirse metin (`string`) tipinde ve aşırı uzun veri/spam önlemi olarak en fazla 2000 karakter olmalıdır.
+5. **`user_id` (İlişki & Yol Parametresi Kuralı):** URL'den gelen `:id` değeri geçerli bir pozitif tam sayı olmalıdır (değilse `400`), ayrıca `users` tablosunda karşılığı yoksa ilan oluşturulamaz (`404 Not Found`).
 
 #### 🗑️ Silme Kuralı Kararı (The Delete Rule Decision):
 * **Seçilen Kural:** `CASCADE` (veya alternatif olarak `RESTRICT`).
@@ -114,7 +121,7 @@ erDiagram
         int user_id FK
         string title
         string company
-        string location
+        string city
         text description
         timestamp created_at
     }
@@ -134,6 +141,8 @@ erDiagram
 Şu anki geliştirme aşamasında veriler bellek içi (In-Memory RAM) olarak tutulmaktadır:
 * `let users = [...]` (`models/userModel.js`)
 * `let announcements = [...]` (`models/announcementModel.js`)
+* `let jobPostings = [...]` (`models/jobPostingModel.js`)
+* `let applications = [...]` (`models/applicationModel.js`)
 
 ### 🐳 Kalıcı Veritabanı Geçiş Planı (Next Steps):
 1. **RDBMS Seçimi:** İlişkisel veri yapısı, yabancı anahtar (FK) bütünlüğü ve ACID güvencesi nedeniyle **PostgreSQL** veya **MySQL** kullanılacaktır.
@@ -141,3 +150,17 @@ erDiagram
    * Veritabanı servisi konteyner olarak ayağa kaldırılacak.
    * `volumes: - db_data:/var/lib/postgresql/data` tanımlanarak sunucu veya konteyner kapansa dahi (`docker compose down`) verilerin diske yazılması garanti altına alınacaktır.
 3. **ORM / Query Builder:** Model katmanındaki `findAll()`, `create()` gibi CRUD fonksiyonları SQL sorguları veya hafif bir ORM ile kalıcı veritabanına bağlanacaktır.
+
+---
+
+## 🛡️ 5. Doğrulama, Hata Yönetimi ve Loglama Kuralları (Middleware Sözleşmesi)
+
+1. **Doğrulama & İş Kuralları (`400 Bad Request` / `409 Conflict`):**
+   * `User.email`, `Announcement.title` & `content`, `JobPosting.title` (maks 120 karakter) & `company` alanları zorunludur; eksiklik veya bozuk JSON (`SyntaxError`) durumunda `400` dönülür.
+   * `Application` tablosunda `(user_id, job_posting_id)` ikilisi benzersizdir; mükerrer başvuruda **`409 Conflict`** dönülür.
+2. **404 Guardian & Yönlendirme (`404 Not Found`):**
+   * API isteklerinde tanımlanmamış rota, eksik `:id` veya yanlış metot hataları gerekçeli (`reason`) JSON olarak döner.
+   * Tarayıcı üzerinden gelen geçersiz web sayfaları genel [`public/404.html`](public/404.html) (`/404`) sayfasına yönlendirilir.
+3. **5xx Guardian & Kalıcı Loglama (`logs/error.logs`):**
+   * Beklenmeyen tüm `5xx` hataları tek merkezde (`middleware/errorMiddleware.js`) yakalanır; güvenlik gereği `err.stack` istemciye **gönderilmez**, yalnızca sunucu terminaline ve [`logs/error.logs`](logs/error.logs) dosyasına yazılır.
+   * Tüm `4xx` ve `5xx` olayları zaman damgası ve gerekçeleriyle [`logs/error.logs`](logs/error.logs) dosyasında saklanır.

@@ -5,17 +5,17 @@ const UserModel = require('../models/userModel');
 
 class ApiApplicationController {
     // DIRECT ROUTE: GET /api/applications - Tüm başvuruları listele
-    static getAllApplications(req, res) {
+    static getAllApplications(req, res, next) {
         try {
             const list = ApplicationModel.findAll();
             return res.status(200).json(list);
         } catch (error) {
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // DIRECT ROUTE: GET /api/applications/:id - Tekil başvuru detayı
-    static getApplicationById(req, res) {
+    static getApplicationById(req, res, next) {
         try {
             const app = ApplicationModel.findById(req.params.id);
             if (!app) {
@@ -23,12 +23,12 @@ class ApiApplicationController {
             }
             return res.status(200).json(app);
         } catch (error) {
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // NESTED ROUTE: GET /api/jobs/:id/applications - İlana gelen başvuruları getir
-    static getApplicationsByJobId(req, res) {
+    static getApplicationsByJobId(req, res, next) {
         try {
             const jobId = req.params.id;
             const job = JobPostingModel.findById(jobId);
@@ -39,14 +39,14 @@ class ApiApplicationController {
             const applications = ApplicationModel.findByJobId(jobId);
             return res.status(200).json(applications);
         } catch (error) {
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // NESTED ROUTE: POST /api/jobs/:id/applications - İlana başvuru yap
     // Body: { "userId": 1, "status": "applied" }
     // İki kez başvurulursa 409 döner!
-    static applyToJob(req, res) {
+    static applyToJob(req, res, next) {
         try {
             const jobId = req.params.id;
             const userId = req.body.userId || req.body.user_id;
@@ -67,12 +67,12 @@ class ApiApplicationController {
             if (error.statusCode === 404) {
                 return res.status(404).json({ error: error.message });
             }
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // NESTED ROUTE: GET /api/users/:id/applications - Kullanıcının yaptığı tüm başvurular
-    static getApplicationsByUserId(req, res) {
+    static getApplicationsByUserId(req, res, next) {
         try {
             const userId = req.params.id;
             const user = UserModel.findById(userId);
@@ -83,12 +83,12 @@ class ApiApplicationController {
             const applications = ApplicationModel.findByUserId(userId);
             return res.status(200).json(applications);
         } catch (error) {
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // DIRECT ROUTE: DELETE /api/applications/:id - Başvuruyu geri çek / sil
-    static deleteApplication(req, res) {
+    static deleteApplication(req, res, next) {
         try {
             const deleted = ApplicationModel.delete(req.params.id);
             if (!deleted) {
@@ -99,7 +99,7 @@ class ApiApplicationController {
                 deletedItem: deleted
             });
         } catch (error) {
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 }

@@ -13,7 +13,7 @@ Temel amacımız; mezunların kariyer yolculuklarını takip etmek, öğrenciler
 * **👤 Profil ve Kariyer Takibi:** Mezunların çalıştığı şirketler, departmanlar, yetkinlikleri ve iletişim bilgileri.
 * **🔍 Gelişmiş Filtreleme:** Mezuniyet yılına, bölüme veya mevcut sektöre göre detaylı arama sistemi.
 * **🤝 Mentörlük Ağı:** Mevcut öğrenciler ile tecrübeli mezunlar arasında iletişim ve buluşma altyapısı.
-* **💼 İş & Staj İlanları:** Sadece platform üyelerine özel kariyer fırsatlarının paylaşıldığı ilan panosu.
+* **💼 İş & Staj İlanları:** Sadece platform üyelerine özel kariyer fırsatlarının paylaşıldığı ilan panosu ve başvuru sistemi.
 * **📊 Yönetim Paneli:** Sistem istatistiklerinin (istihdam oranları vb.) görüntülendiği admin arayüzü.
 
 ---
@@ -50,7 +50,7 @@ graph TD
 * **Kural:** Rotalar içinde doğrudan iş mantığı, veri manipülasyonu veya kural kontrolleri barındırılmaz; rota bir "içindekiler tablosu" gibi yalnızca adresleme yapar.
 
 #### 2. 🧠 Controller (Yönetici & Akış Katmanı)
-* **Görevi:** İstemciden gelen isteği (`req`) okur, parametreleri ayrıştırır, Model ile iletişim kurar ve istemciye uygun HTTP durum kodu (`200`, `201`, `400`, `404`) ile yanıtı (`res`) döner.
+* **Görevi:** İstemciden gelen isteği (`req`) okur, parametreleri ayrıştırır, Model ile iletişim kurar ve istemciye uygun HTTP durum kodu (`200`, `201`, `400`, `404`, `409`) ile yanıtı (`res`) döner.
 * **Kural:** Verinin nasıl saklandığını veya fiziksel yapısını bilmez; iş akışını yönetir ve Model'den dönen sonuca göre yanıtı şekillendirir.
 
 #### 3. 📦 Model (Veri & Kurallar - Data & Validation)
@@ -76,6 +76,33 @@ graph TD
 
 ---
 
+## 🛡️ Middleware Pipeline ve Hata Yönetimi
+
+İstekler sunucuya ulaştığında sırasıyla aşağıdaki katmanlardan (Middleware Pipeline) geçer:
+
+```mermaid
+flowchart LR
+    Req([HTTP İsteği]) --> Logger[1. Logger Middleware]
+    Logger --> Parsers[2. Static / JSON & URL Parsers]
+    Parsers --> Routes[3. MVC Rotaları & Controller]
+    Routes -->|Eşleşme Yoksa| Guardian404[4. 404 Guardian]
+    Guardian404 -->|Tarayıcı HTML| Redirect404["/404 Sayfası (public/404.html)"]
+    Guardian404 -->|API / Postman| Json404["404 JSON + reason"]
+    Routes -->|Hata Fırlatılırsa| Guardian5xx[5. 5xx Error Guardian]
+    Guardian5xx -->|Stack Trace| FileLog["logs/error.logs & Terminal"]
+    Guardian5xx -->|Güvenli Yanıt| SafeRes["4xx / 5xx JSON veya HTML + reason"]
+```
+
+* **📊 Logger Middleware (`middleware/loggerMiddleware.js`):** Sunucuya gelen her isteği `SAAT METOT ROTA DURUM SÜRE` formatında terminale (`10:20:30 POST /api/users 201 18ms`) yazar. Durum kodu `400` ve üzeri (`4xx` / `5xx`) olan tüm hatalı istekleri ek olarak kalıcı log dosyasına işler.
+* **🚧 404 Guardian Middleware (`middleware/notFoundMiddleware.js`):** Tanımsız rotaları, eksik `:id` parametrelerini, tekil/çoğul yazım hatalarını veya yanlış HTTP metotlarını yakalar:
+  * **API / Postman:** Gerçek sebebi açıklayan `reason` alanı içeren standart `404` JSON yanıtı döner.
+  * **Web Tarayıcısı:** Geçersiz sayfa isteklerini otomatik olarak genel 404 sayfasına (`/404` ➔ `public/404.html`) yönlendirir.
+* **🚨 5xx Guardian Middleware (`middleware/errorMiddleware.js`):** Express'in 4 parametreli `(err, req, res, next)` merkezi hata yakalayıcısıdır. Beklenmeyen tüm `500`, `502`, `503`, `504`, `509` sunucu hatalarını ve bozuk JSON (`SyntaxError` ➔ `400`) isteklerini tek noktada yakalar; `err.stack` detayını **istemciye sızdırmadan** yalnızca sunucu konsoluna ve log dosyasına yazar.
+* **📝 Kalıcı Hata Logları (`logs/error.logs` & `middleware/fileLogger.js`):** Tüm `4xx` ve `5xx` hataları zaman damgası, gerekçe ve stack trace ile birlikte kalıcı olarak `logs/error.logs` dosyasına kaydedilir.
+* **🌐 Genel 404 Sayfası (`public/404.html` & `GET /404`):** Geçersiz adreslerde kullanıcıyı *"Ooops! This page can't be found!"* uyarısıyla karşılayan, hatanın sebebini ve ana sayfa/modül yönlendirme butonlarını sunan özel 404 ekranıdır.
+
+---
+
 ## ⚙️ Kurulum ve Çalıştırma
 
 Projeyi yerel ortamınızda (localhost) çalıştırmak için aşağıdaki adımları izleyin:
@@ -89,20 +116,19 @@ cd alumni
 ### 2. Bağımlılıkları Yükleyin
 Proje klasöründe terminali açıp gerekli paketleri kurun:
 ```bash
-# Backend paketlerini kurmak için (Node.js kullanılıyorsa)
 npm install
 ```
 
 ### 3. Ortam Değişkenlerini (ENV) Ayarlayın
 Örnek yapılandırma dosyasını kopyalayın ve veritabanı bilgilerinizi girin:
 ```bash
-cp .env.example .env
+cp .example.env .env
 ```
 
-### 4. Sunucuyu Başlatın
+### 4. (Opsiyonel) Veritabanını Tohumlayın ve Sunucuyu Başlatın
 ```bash
+npm run seed
 npm start
-# veya geliştirme ortamı için: npm run dev
 ```
 Sunucu varsayılan olarak `http://localhost:3000` adresinde çalışacaktır.
 
@@ -130,6 +156,15 @@ Geliştirilmekte olan sisteme ait temel RESTful servisler aşağıdaki tabloda l
 | **`PUT`** | `/api/users/:id` | Kullanıcı bilgilerini tamamen günceller | `200 OK` |
 | **`PATCH`**| `/api/users/:id` | Kullanıcı bilgilerini kısmi olarak günceller | `200 OK` |
 | **`DELETE`**| `/api/users/:id` | İlgili kullanıcıyı sistemden siler | `204 No Content` / `200 OK` |
+| **`GET`** | `/api/users/:id/jobs` | Belirli bir kullanıcının açtığı iş ilanlarını getirir | `200 OK` |
+| **`POST`** | `/api/users/:id/jobs` | Belirli bir kullanıcı adına yeni iş ilanı oluşturur | `201 Created` |
+| **`GET`** | `/api/users/:id/applications` | Kullanıcının yaptığı iş başvurularını listeler | `200 OK` |
+| **`GET`** | `/api/jobs` | Sistemdeki tüm iş ilanlarını listeler | `200 OK` |
+| **`GET`** | `/api/jobs/:id` | Tekil iş ilanı detayını getirir | `200 OK` |
+| **`GET`** | `/api/jobs/:id/applications` | Belirli bir ilana gelen başvuruları listeler | `200 OK` |
+| **`POST`** | `/api/jobs/:id/applications` | İlana başvuru yapar (Mükerrer ise `409 Conflict`) | `201 Created` |
+| **`GET`** | `/api/applications` | Tüm başvuruları listeler | `200 OK` |
+| **`DELETE`**| `/api/applications/:id` | Başvuruyu geri çeker / siler | `200 OK` |
 | **`GET`** | `/api/announcements` | Tüm duyuruları listeler | `200 OK` |
 | **`POST`** | `/api/announcements` | Yeni duyuru oluşturur | `201 Created` |
 | **`GET`** | `/api/announcements/:id` | ID'si verilen duyuruyu getirir | `200 OK` |
@@ -138,8 +173,12 @@ Geliştirilmekte olan sisteme ait temel RESTful servisler aşağıdaki tabloda l
 | **`DELETE`**| `/api/announcements/:id` | İlgili duyuruyu siler | `200 OK` |
 
 ### 🖥️ Web Kullanıcı Arayüzleri (HTML Views)
+* **Ana Sayfa:** `http://localhost:3000/`
 * **Kullanıcı Yönetimi:** `http://localhost:3000/users`
+* **İş İlanları:** `http://localhost:3000/jobs`
+* **İş Başvuruları:** `http://localhost:3000/applications`
 * **Duyuru Yönetimi:** `http://localhost:3000/announcements`
+* **Genel 404 Sayfası:** `http://localhost:3000/404` *(Geçersiz web adresleri otomatik buraya yönlendirilir)*
 * **Swagger Dokümantasyonu:** `http://localhost:3000/api/swagger`
 
 ---

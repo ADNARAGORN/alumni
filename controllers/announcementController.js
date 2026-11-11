@@ -4,18 +4,18 @@ const AnnouncementViews = require('../views/announcementViews');
 
 class AnnouncementController {
     // 1. READ (All): Duyuru Listesi + Ekleme Formu
-    static renderList(req, res) {
+    static renderList(req, res, next) {
         try {
             const list = AnnouncementModel.findAll();
             const html = AnnouncementViews.renderListPage(list);
             return res.status(200).send(html);
         } catch (error) {
-            return res.status(500).send(`<h1>Sunucu Hatası</h1><p>${error.message}</p>`);
+            return next(error);
         }
     }
 
     // 2. READ (One): Tekil Duyuru Detayı
-    static renderDetail(req, res) {
+    static renderDetail(req, res, next) {
         try {
             const item = AnnouncementModel.findById(req.params.id);
             if (!item) {
@@ -24,7 +24,7 @@ class AnnouncementController {
             const html = AnnouncementViews.renderDetailPage(item);
             return res.status(200).send(html);
         } catch (error) {
-            return res.status(500).send(`<h1>Sunucu Hatası</h1><p>${error.message}</p>`);
+            return next(error);
         }
     }
 
@@ -41,7 +41,7 @@ class AnnouncementController {
     }
 
     // 4. UPDATE Formu: Düzenleme Sayfasını Göster
-    static renderEditForm(req, res) {
+    static renderEditForm(req, res, next) {
         try {
             const item = AnnouncementModel.findById(req.params.id);
             if (!item) {
@@ -50,7 +50,7 @@ class AnnouncementController {
             const html = AnnouncementViews.renderEditPage(item);
             return res.status(200).send(html);
         } catch (error) {
-            return res.status(500).send(`<h1>Sunucu Hatası</h1><p>${error.message}</p>`);
+            return next(error);
         }
     }
 
@@ -70,12 +70,12 @@ class AnnouncementController {
     }
 
     // 6. DELETE İşlemi: Duyuruyu Sil
-    static delete(req, res) {
+    static delete(req, res, next) {
         try {
             AnnouncementModel.delete(req.params.id);
             return res.redirect('/announcements');
         } catch (error) {
-            return res.status(500).send(`<h1>Hata</h1><p>${error.message}</p>`);
+            return next(error);
         }
     }
 }

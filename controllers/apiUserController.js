@@ -3,17 +3,17 @@ const UserModel = require('../models/userModel');
 
 class ApiUserController {
     // GET /api/users - Tüm kullanıcıları listele
-    static getAllUsers(req, res) {
+    static getAllUsers(req, res, next) {
         try {
             const users = UserModel.findAll();
             return res.status(200).json(users);
         } catch (error) {
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // GET /api/users/:id - Tek kullanıcı getir
-    static getUserById(req, res) {
+    static getUserById(req, res, next) {
         try {
             const user = UserModel.findById(req.params.id);
             if (!user) {
@@ -21,12 +21,12 @@ class ApiUserController {
             }
             return res.status(200).json(user);
         } catch (error) {
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // POST /api/users - Yeni kullanıcı ekle
-    static createUser(req, res) {
+    static createUser(req, res, next) {
         try {
             const newUser = UserModel.create(req.body);
             return res.status(201).json({
@@ -37,12 +37,12 @@ class ApiUserController {
             if (error.message.startsWith('VALIDATION_ERROR')) {
                 return res.status(400).json({ error: error.message });
             }
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // PUT /api/users/:id - Kullanıcıyı tamamen güncelle
-    static updateUser(req, res) {
+    static updateUser(req, res, next) {
         try {
             const updatedUser = UserModel.update(req.params.id, req.body);
             if (!updatedUser) {
@@ -56,12 +56,12 @@ class ApiUserController {
             if (error.message.startsWith('VALIDATION_ERROR')) {
                 return res.status(400).json({ error: error.message });
             }
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // PATCH /api/users/:id - Kullanıcıyı kısmi güncelle
-    static patchUser(req, res) {
+    static patchUser(req, res, next) {
         try {
             const patchedUser = UserModel.patch(req.params.id, req.body);
             if (!patchedUser) {
@@ -75,12 +75,12 @@ class ApiUserController {
             if (error.message.startsWith('VALIDATION_ERROR')) {
                 return res.status(400).json({ error: error.message });
             }
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 
     // DELETE /api/users/:id - Kullanıcıyı sil
-    static deleteUser(req, res) {
+    static deleteUser(req, res, next) {
         try {
             const deletedUser = UserModel.delete(req.params.id);
             if (!deletedUser) {
@@ -91,7 +91,7 @@ class ApiUserController {
                 deletedUser: deletedUser
             });
         } catch (error) {
-            return res.status(500).json({ error: error.message });
+            return next(error);
         }
     }
 }

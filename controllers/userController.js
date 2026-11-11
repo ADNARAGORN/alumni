@@ -4,18 +4,18 @@ const UserViews = require('../views/userViews');
 
 class UserController {
     // 1. READ (All): Mezunları Listele
-    static renderUserList(req, res) {
+    static renderUserList(req, res, next) {
         try {
             const users = UserModel.findAll();
             const html = UserViews.renderUserListPage(users);
             return res.status(200).send(html);
         } catch (error) {
-            return res.status(500).send(`<h1>Sunucu Hatası</h1><p>${error.message}</p>`);
+            return next(error);
         }
     }
 
     // 2. READ (One): Tekil Profil Görüntüle
-    static renderUserDetail(req, res) {
+    static renderUserDetail(req, res, next) {
         try {
             const user = UserModel.findById(req.params.id);
             if (!user) {
@@ -24,7 +24,7 @@ class UserController {
             const html = UserViews.renderUserDetailPage(user);
             return res.status(200).send(html);
         } catch (error) {
-            return res.status(500).send(`<h1>Sunucu Hatası</h1><p>${error.message}</p>`);
+            return next(error);
         }
     }
 
@@ -50,7 +50,7 @@ class UserController {
     }
 
     // 4. UPDATE Formu: Düzenleme Sayfasını Göster
-    static renderEditForm(req, res) {
+    static renderEditForm(req, res, next) {
         try {
             const user = UserModel.findById(req.params.id);
             if (!user) {
@@ -59,7 +59,7 @@ class UserController {
             const html = UserViews.renderUserEditPage(user);
             return res.status(200).send(html);
         } catch (error) {
-            return res.status(500).send(`<h1>Sunucu Hatası</h1><p>${error.message}</p>`);
+            return next(error);
         }
     }
 
@@ -88,12 +88,12 @@ class UserController {
     }
 
     // 6. DELETE İşlemi: Mezunu Sil
-    static deleteUser(req, res) {
+    static deleteUser(req, res, next) {
         try {
             UserModel.delete(req.params.id);
             return res.redirect('/users');
         } catch (error) {
-            return res.status(500).send(`<h1>Hata</h1><p>${error.message}</p>`);
+            return next(error);
         }
     }
 }
