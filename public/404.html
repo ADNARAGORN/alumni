@@ -3,111 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Sayfa Bulunamadı | Alumni Tracking</title>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #0f172a;
-            --muted: #64748b;
-            --border: #e2e8f0;
-            --danger: #ef4444;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .card {
-            max-width: 560px;
-            width: 100%;
-            background: var(--card);
-            padding: 40px 32px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-            border: 1px solid var(--border);
-        }
-        .code {
-            font-size: 68px;
-            font-weight: 800;
-            color: var(--danger);
-            margin: 0;
-            line-height: 1;
-        }
-        h1 {
-            font-size: 24px;
-            margin: 14px 0 10px 0;
-            color: #1e293b;
-        }
-        p.subtitle {
-            color: var(--muted);
-            font-size: 15px;
-            margin: 0 0 20px 0;
-        }
-        .reason-box {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-            padding: 14px 16px;
-            border-radius: 10px;
-            font-size: 14px;
-            margin-bottom: 24px;
-            text-align: left;
-            word-break: break-word;
-        }
-        .links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-        a.btn {
-            display: inline-block;
-            text-decoration: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            background: var(--primary);
-            color: #ffffff;
-        }
-        a.btn:hover { background: var(--primary-hover); }
-        a.btn-secondary {
-            background: #e2e8f0;
-            color: var(--text);
-        }
-        a.btn-secondary:hover { background: #cbd5e1; }
-    </style>
+    <title>404 - Sayfa Bulunamadı · Alumni</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/design-system.css">
 </head>
 <body>
-    <div class="card">
-        <p class="code">404</p>
-        <h1>Ooops! This page can't be found!</h1>
-        <p class="subtitle">Aradığınız sayfa taşınmış, silinmiş veya hiç var olmamış olabilir.</p>
+    <header class="navbar">
+        <div class="container navbar-inner">
+            <a href="/" class="brand">
+                <div class="brand-mark">A</div>
+                <span class="brand-title">Alumni</span>
+            </a>
 
-        <div class="reason-box">
-            <div><strong>Sebep / Reason:</strong> <span id="reason-text">Geçersiz veya tanımlanmamış bir sayfa adresi istendi.</span></div>
-            <div id="path-row" style="margin-top: 6px; display: none;">
-                <strong>İstenen Adres:</strong> <code id="path-text"></code>
+            <nav class="nav-links">
+                <a href="/users">Mezunlar</a>
+                <a href="/jobs">İş İlanları</a>
+                <a href="/applications">Başvurular</a>
+                <a href="/announcements">Duyurular</a>
+                <a href="/api/swagger">Swagger UI</a>
+            </nav>
+
+            <a href="/" class="btn btn-primary btn-sm">Ana Sayfa</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="focused-wrap">
+            <div class="focused-card" style="text-align:center;">
+                <span class="kicker">HTTP 404 · Not Found</span>
+                <p style="font-family:var(--font-display); font-size:72px; font-weight:700; color:var(--color-gold); margin:6px 0 0 0; line-height:1;">404</p>
+                <h1>Ooops! This page can't be found!</h1>
+                <p style="font-family:var(--font-editorial); font-size:18px; color:var(--color-muted); margin:0 0 24px 0;">
+                    Aradığınız sayfa taşınmış, silinmiş veya hiç var olmamış olabilir.
+                </p>
+
+                <div class="alert alert-danger" style="text-align:left; word-break:break-word;">
+                    <div><strong>Sebep / Reason:</strong> <span id="reason-text">Geçersiz veya tanımlanmamış bir sayfa adresi istendi.</span></div>
+                    <div id="path-row" style="margin-top:8px; display:none;">
+                        <strong>İstenen Adres:</strong> <code id="path-text" style="font-family:var(--font-mono); font-size:13px;"></code>
+                    </div>
+                </div>
+
+                <div class="btn-group" style="justify-content:center;">
+                    <a href="/" class="btn btn-primary btn-sm">&larr; Ana Sayfaya Dön</a>
+                    <a href="/users" class="btn btn-outline btn-sm">Mezunlar</a>
+                    <a href="/jobs" class="btn btn-outline btn-sm">İş İlanları</a>
+                    <a href="/announcements" class="btn btn-outline btn-sm">Duyurular</a>
+                </div>
             </div>
         </div>
+    </main>
 
-        <div class="links">
-            <a href="/" class="btn">🏠 Ana Sayfaya Dön</a>
-            <a href="/users" class="btn btn-secondary">🎓 Mezunlar</a>
-            <a href="/jobs" class="btn btn-secondary">💼 İş İlanları</a>
-            <a href="/announcements" class="btn btn-secondary">📢 Duyurular</a>
+    <footer class="footer">
+        <div class="container footer-inner">
+            <span>© 2026 Alumni Tracking System</span>
+            <div class="footer-links">
+                <a href="/">Ana Sayfa</a>
+                <a href="/about">Hakkımızda</a>
+                <a href="/api/swagger">Swagger UI</a>
+            </div>
         </div>
-    </div>
+    </footer>
 
     <script>
         const params = new URLSearchParams(window.location.search);

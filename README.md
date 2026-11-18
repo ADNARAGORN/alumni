@@ -188,6 +188,16 @@ Geliştirilmekte olan sisteme ait temel RESTful servisler aşağıdaki tabloda l
 
 ---
 
+## 🎨 Marka ve Tasarım Rehberi (Brand Kit)
+> Renk paleti (Oxford Navy & Heritage Gold), tipografi sistemi (`Playfair Display` + `Plus Jakarta Sans`), bileşen standartları ve CSS değişkenleri için lütfen [Brand Kit & Design System (brand.md)](./brand.md) dosyasını inceleyin.
+
+---
+
+## 🧩 Arayüz Tasarım Spesifikasyonu (`DESIGN.md`)
+> [`VoltAgent/awesome-design-md`](https://github.com/VoltAgent/awesome-design-md) standardında (**Claude** tipografi, **WIRED** keskin köşeli butonlar, **Notion** veri tabloları, **Tesla & Apple** kategori kartları harmanıyla) hazırlanmış 9 bölümlü UI spesifikasyonu için lütfen [DESIGN.md](./DESIGN.md) dosyasını inceleyin.
+
+---
+
 ## 🗄️ Veritabanı Şeması Taslağı
 
 ```mermaid

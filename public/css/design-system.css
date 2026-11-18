@@ -1,0 +1,666 @@
+/* ============================================================================
+   ALUMNI TRACKING SYSTEM — UNIFIED DESIGN SYSTEM (brand.md + DESIGN.md)
+   - Palette: Oxford Navy (#0B1F3A) · Heritage Gold (#C8922B) · Warm Ivory (#FAF8F4)
+   - Typography (Claude): Playfair Display + Newsreader + Plus Jakarta Sans + JetBrains Mono
+   - Buttons (WIRED): Square corners, no compromise (0px)
+   - Category Cards (Tesla & Apple): 12px full-bleed architectural gallery
+   - Data Tables (Notion): Horizontal 1px hairlines only, zero vertical borders
+   ============================================================================ */
+
+:root {
+    --color-navy: #0B1F3A;
+    --color-navy-soft: #16325B;
+    --color-gold: #C8922B;
+    --color-gold-nav: #A67518;
+    --color-gold-hover: #B58222;
+    --color-gold-light: #F3E6C8;
+    --color-gold-ink: #7D5813;
+    --color-ivory: #FAF8F4;
+    --color-parchment: #F3EFE6;
+    --color-surface: #FFFFFF;
+    --color-ink: #111827;
+    --color-muted: #5A6577;
+    --color-border: #E6E0D5;
+
+    --color-success: #0F766E;
+    --color-success-bg: #CCFBF1;
+    --color-warning: #B45309;
+    --color-warning-bg: #FEF3C7;
+    --color-danger: #B91C1C;
+    --color-danger-bg: #FEF2F2;
+    --color-info: #1D4ED8;
+    --color-info-bg: #DBEAFE;
+
+    --font-display: 'Playfair Display', 'Newsreader', Georgia, serif;
+    --font-editorial: 'Newsreader', Georgia, serif;
+    --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+    --radius-btn: 0px;    /* WIRED: Square corners, no compromise */
+    --radius-card: 12px;  /* Tesla: Category cards */
+    --ease-snap: 180ms ease;
+    --ease-gallery: 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    background-color: var(--color-ivory);
+    color: var(--color-ink);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 28px;
+}
+
+/* ================= APPLE-PRECISION STICKY NAVBAR ================= */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    height: 72px;
+    background: rgba(250, 248, 244, 0.9);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+}
+
+.navbar-inner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-btn);
+    background: var(--color-navy);
+    color: var(--color-gold);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.brand-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-navy);
+    letter-spacing: -0.01em;
+}
+
+/* Boxless, unmistakably clickable Heritage Gold nav links */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.nav-links a {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-gold-nav);
+    padding: 6px 0;
+    border-bottom: 2px solid transparent;
+    transition: color var(--ease-snap), border-color var(--ease-snap);
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--color-navy);
+    border-bottom-color: var(--color-gold);
+}
+
+/* ================= WIRED BUTTONS (0px SQUARE CORNERS) ================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: var(--radius-btn);
+    padding: 12px 22px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    border: 1.5px solid var(--color-navy);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color var(--ease-snap), color var(--ease-snap), border-color var(--ease-snap);
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.btn-sm {
+    padding: 7px 13px;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+}
+
+.btn-primary {
+    background: var(--color-navy);
+    color: #FFFFFF;
+    border-color: var(--color-navy);
+}
+
+.btn-primary:hover {
+    background: var(--color-gold);
+    border-color: var(--color-gold);
+    color: #FFFFFF;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--color-navy);
+    border-color: var(--color-navy);
+}
+
+.btn-outline:hover {
+    background: var(--color-navy);
+    color: #FFFFFF;
+}
+
+.btn-gold {
+    background: var(--color-gold);
+    color: #FFFFFF;
+    border-color: var(--color-gold);
+}
+
+.btn-gold:hover {
+    background: var(--color-navy);
+    border-color: var(--color-navy);
+}
+
+.btn-danger {
+    background: transparent;
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+}
+
+.btn-danger:hover {
+    background: var(--color-danger);
+    color: #FFFFFF;
+}
+
+.btn-success {
+    background: var(--color-success);
+    color: #FFFFFF;
+    border-color: var(--color-success);
+}
+
+.btn-success:hover {
+    background: var(--color-navy);
+    border-color: var(--color-navy);
+}
+
+.btn-card-light {
+    background: transparent;
+    color: #FFFFFF;
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    padding: 10px 18px;
+    font-size: 11px;
+}
+
+.btn-card-light:hover {
+    background: #FFFFFF;
+    color: var(--color-navy);
+    border-color: #FFFFFF;
+}
+
+/* ================= EDITORIAL PAGE HEADER (SUBPAGES) ================= */
+.page-header {
+    padding: 44px 0 32px;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 36px;
+}
+
+.page-header-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.kicker {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--color-gold-nav);
+    margin-bottom: 8px;
+}
+
+.page-header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(30px, 3.6vw, 42px);
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--color-navy);
+    margin: 0 0 8px 0;
+}
+
+.page-header p {
+    margin: 0;
+    font-family: var(--font-editorial);
+    font-size: 18px;
+    color: var(--color-muted);
+    max-width: 640px;
+}
+
+/* ================= OPERATIONAL CRUD SPLIT LAYOUT ================= */
+.crud-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.9fr) minmax(300px, 1fr);
+    gap: 28px;
+    align-items: start;
+    padding-bottom: 64px;
+}
+
+.panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 26px;
+}
+
+.panel-sticky {
+    position: sticky;
+    top: 96px;
+}
+
+.panel-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--color-navy);
+    margin: 0 0 18px 0;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* ================= NOTION-STYLE DATA TABLES ================= */
+.notion-frame {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    overflow-x: auto;
+}
+
+.notion-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.notion-table thead th {
+    background: var(--color-ivory);
+    color: var(--color-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.notion-table tbody td {
+    padding: 15px 16px;
+    font-size: 14px;
+    color: var(--color-ink);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+}
+
+.notion-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.notion-table tbody tr {
+    transition: background-color var(--ease-snap);
+}
+
+.notion-table tbody tr:hover {
+    background-color: var(--color-ivory);
+}
+
+.td-id {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-muted);
+    white-space: nowrap;
+}
+
+.td-title {
+    font-weight: 600;
+    color: var(--color-navy);
+}
+
+.td-muted {
+    color: var(--color-muted);
+    font-size: 13px;
+}
+
+.action-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+
+/* ================= WIRED SQUARE TAGS ================= */
+.tag-square {
+    display: inline-block;
+    border-radius: var(--radius-btn);
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: var(--color-gold-light);
+    color: var(--color-gold-ink);
+    white-space: nowrap;
+}
+
+.tag-navy {
+    background: rgba(11, 31, 58, 0.08);
+    color: var(--color-navy);
+}
+
+.tag-success {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.tag-warning {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+}
+
+/* ================= EDITORIAL CONTENT CARDS (JOBS / ANNOUNCEMENTS) ================= */
+.editorial-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.editorial-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 24px;
+    transition: border-color var(--ease-snap);
+}
+
+.editorial-card:hover {
+    border-color: var(--color-gold);
+}
+
+.editorial-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.editorial-card h3 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--color-navy);
+    margin: 8px 0 0 0;
+    line-height: 1.2;
+}
+
+.editorial-card p {
+    font-size: 14px;
+    color: var(--color-muted);
+    margin: 10px 0 18px 0;
+    line-height: 1.65;
+}
+
+.editorial-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-border);
+    font-size: 13px;
+    color: var(--color-muted);
+}
+
+/* ================= FORMS (0px WIRED GEOMETRY) ================= */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 6px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--radius-btn);
+    border: 1px solid var(--color-border);
+    background: var(--color-ivory);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 14px;
+    transition: border-color var(--ease-snap), background-color var(--ease-snap);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    background: var(--color-surface);
+    border-color: var(--color-navy);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 96px;
+}
+
+.select-inline {
+    width: auto;
+    min-width: 160px;
+    padding: 7px 10px;
+    font-size: 12px;
+}
+
+/* ================= ALERTS ================= */
+.alert {
+    padding: 14px 18px;
+    border-radius: var(--radius-btn);
+    font-size: 14px;
+    margin-bottom: 24px;
+    border-left: 4px solid;
+}
+
+.alert-danger {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+}
+
+.alert-success {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+    border-color: var(--color-success);
+}
+
+/* ================= CENTERED DETAIL / EDIT / ERROR CARD ================= */
+.focused-wrap {
+    max-width: 640px;
+    margin: 48px auto 72px;
+    padding: 0 20px;
+}
+
+.focused-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 36px;
+}
+
+.focused-card h1 {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--color-navy);
+    margin: 10px 0 18px 0;
+    line-height: 1.18;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 14px;
+}
+
+.detail-row:last-of-type {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+}
+
+.detail-value {
+    color: var(--color-navy);
+    font-weight: 500;
+    text-align: right;
+}
+
+.btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 26px;
+}
+
+/* ================= FOOTER ================= */
+.footer {
+    border-top: 1px solid var(--color-border);
+    padding: 32px 0 42px;
+    font-size: 13px;
+    color: var(--color-muted);
+    background: var(--color-ivory);
+}
+
+.footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: var(--color-gold-nav);
+    font-weight: 600;
+}
+
+.footer-links a:hover {
+    color: var(--color-navy);
+    text-decoration: underline;
+}
+
+.live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-success);
+    background: var(--color-success-bg);
+    padding: 4px 10px;
+    border-radius: var(--radius-btn);
+}
+
+.live-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--color-success);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 980px) {
+    .crud-grid {
+        grid-template-columns: 1fr;
+    }
+    .panel-sticky {
+        position: static;
+    }
+    .nav-links {
+        display: none;
+    }
+}

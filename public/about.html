@@ -3,21 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alumni - Hakkımızda</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #e9ecef; }
-        h1 { color: #2c3e50; }
-        .card { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        a { display: block; margin-top: 20px; text-decoration: none; color: #007bff; }
-    </style>
+    <title>Hakkımızda · Alumni</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/design-system.css">
 </head>
 <body>
-    <div class="card">
-        <h1>Geliştirici Hakkında</h1>
-        <p>Bu proje Web Programlama dersi 2. Hafta görevleri kapsamında hazırlanmıştır.</p>
-        <p><strong>Geçici About (Hakkımızda) Sayfası</strong></p>
-        
-        <a href="/">⬅ Ana Sayfaya Dön</a>
-    </div>
+    <header class="navbar">
+        <div class="container navbar-inner">
+            <a href="/" class="brand">
+                <div class="brand-mark">A</div>
+                <span class="brand-title">Alumni</span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="/users">Mezunlar</a>
+                <a href="/jobs">İş İlanları</a>
+                <a href="/applications">Başvurular</a>
+                <a href="/announcements">Duyurular</a>
+                <a href="/api/swagger">Swagger UI</a>
+            </nav>
+
+            <a href="/" class="btn btn-primary btn-sm">Ana Sayfa</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="focused-wrap">
+            <div class="focused-card">
+                <span class="kicker">Proje Hakkında</span>
+                <h1>Alumni Tracking System</h1>
+                <p style="font-family:var(--font-editorial); font-size:18px; color:var(--color-muted); margin:0 0 24px 0;">
+                    İstanbul Üniversitesi Yönetim Bilişim Sistemleri Web Programlama dersi kapsamında,
+                    mezunlar ile öğrenciler arasında kalıcı bir kariyer ve iletişim ağı kurmak amacıyla geliştirilmiştir.
+                </p>
+
+                <div class="detail-row">
+                    <span class="detail-label">Mimari</span>
+                    <span class="detail-value">MVC (Model · View · Controller) + Middleware</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Backend</span>
+                    <span class="detail-value">Node.js · Express.js · OpenAPI / Swagger</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Tasarım Sistemi</span>
+                    <span class="detail-value">brand.md &amp; DESIGN.md (Claude · WIRED · Notion · Tesla)</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Veri Modelleri</span>
+                    <span class="detail-value">Users · JobPostings · Applications · Announcements</span>
+                </div>
+
+                <div class="btn-group">
+                    <a href="/" class="btn btn-primary btn-sm">&larr; Ana Sayfaya Dön</a>
+                    <a href="/api/swagger" class="btn btn-outline btn-sm">Swagger Dokümantasyonu</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                <span>© 2026 Alumni Tracking System</span>
+                <span class="live-badge"><span class="live-dot"></span>SYSTEM ONLINE</span>
+            </div>
+            <div class="footer-links">
+                <a href="/">Ana Sayfa</a>
+                <a href="/api/swagger">Swagger UI</a>
+                <a href="/api/health" target="_blank">API Health</a>
+                <a href="/404">404 Sayfası</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
