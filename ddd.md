@@ -24,11 +24,39 @@ Sistemdeki mezunların, öğrencilerin veya sistem yöneticilerinin temel profil
 | `id` | `INTEGER` | Evet | Otomatik Artan (PK) | Benzersiz, pozitif tam sayı | Kaydın tekil kimliği |
 | `name` | `VARCHAR(100)` | Evet | - | Boş olamaz, min 2 karakter | Kullanıcının ad ve soyadı |
 | `email` | `VARCHAR(255)` | **Evet (Zorunlu)** | - | Geçerli e-posta formatı, Benzersiz (Unique) | İletişim & giriş adresi (Model kuralı: eksikse 400) |
+| `password_hash` | `VARCHAR(255)` | **Evet (Zorunlu)** | - | Tek yönlü hash (`bcrypt` / `scrypt`), düz metin saklanmaz | Kullanıcının şifrelenmiş parolası (API yanıtlarında asla dönülmez) |
+| `role` | `VARCHAR(20)` | **Evet (Zorunlu)** | `"student"` | Yalnızca `"admin"`, `"alumni"`, `"student"` olabilir | Kullanıcının sistemdeki yetki rolü (RBAC) |
 | `graduationYear` | `INTEGER` | Hayır | `NULL` | 1950 - 2030 arası tam sayı | Mezun olunan yıl |
 | `department` | `VARCHAR(150)` | Hayır | "YBS" | Maks 150 karakter | Mezun olunan bölüm |
 | `company` | `VARCHAR(150)` | Hayır | `NULL` | - | Halihazırda çalışılan şirket |
 | `jobTitle` | `VARCHAR(150)` | Hayır | `NULL` | - | Mevcut görev / pozisyon unvanı |
 | `skills` | `JSON / ARRAY` | Hayır | `[]` | Dizi formatında metinler | Yetkinlikler (Örn: Node.js, SQL) |
+
+#### 🔐 Kullanıcı Rolleri ve Yetkilendirme Matrisi (Authentication & Authorization / RBAC)
+
+Sistemde üç temel rol tanımlanmıştır:
+
+1. **`admin` (Sistem Yöneticisi):** Platformun tam yetkili yöneticisidir. Tüm kullanıcıları, duyuruları, iş ilanlarını ve başvuruları yönetebilir (CRUD), kullanıcı rollerini güncelleyebilir.
+2. **`alumni` (Mezun):** Üniversiteden mezun olmuş kullanıcıdır. Kendi profilini yönetebilir, iş/staj ilanı (`job_postings`) yayınlayabilir, **yalnızca kendi açtığı** ilanları düzenleyip silebilir, kendi ilanlarına gelen başvuruları inceleyebilir ve başka ilanlara başvurabilir.
+3. **`student` (Öğrenci):** Halihazırda öğrenim gören kullanıcıdır. Mezunları, duyuruları ve açık iş/staj ilanlarını görüntüleyebilir; kendi profilini güncelleyebilir; ilanlara başvurabilir (`applications`) ve **yalnızca kendi** başvurularını takip/iptal edebilir. İş ilanı açamaz ve duyuru yönetemez.
+
+| Kaynak / İşlem | Girişsiz (`Public`) | `student` | `alumni` | `admin` |
+| :--- | :---: | :---: | :---: | :---: |
+| **Kayıt / Giriş (`/api/auth/register`, `/login`)** | ✅ | ✅ | ✅ | ✅ |
+| **Mezunları Listele & Profil Gör (`GET /api/users`)** | ✅ *(veya sınırlı)* | ✅ | ✅ | ✅ |
+| **Profil Güncelle (`PUT/PATCH /api/users/:id`)** | ❌ (`401`) | Sadece Kendi Profili | Sadece Kendi Profili | ✅ (Tümü) |
+| **Kullanıcı Sil / Rol Değiştir (`DELETE /api/users/:id`)** | ❌ (`401`) | ❌ (`403`) | ❌ (`403`) | ✅ |
+| **İş İlanlarını Görüntüle (`GET /api/jobs`)** | ✅ | ✅ | ✅ | ✅ |
+| **İş İlanı Oluştur (`POST /api/users/:id/jobs`)** | ❌ (`401`) | ❌ (`403`) | ✅ *(Kendi adına)* | ✅ |
+| **İş İlanı Güncelle / Sil (`PUT/DELETE /api/jobs/:id`)** | ❌ (`401`) | ❌ (`403`) | Sadece Kendi İlanı | ✅ (Tümü) |
+| **İlana Başvur (`POST /api/jobs/:id/applications`)** | ❌ (`401`) | ✅ | ✅ | ✅ |
+| **Başvuru İptal Et (`DELETE /api/applications/:id`)** | ❌ (`401`) | Sadece Kendi Başvurusu | Sadece Kendi Başvurusu | ✅ (Tümü) |
+| **Duyuruları Görüntüle (`GET /api/announcements`)** | ✅ | ✅ | ✅ | ✅ |
+| **Duyuru Oluştur / Güncelle / Sil** | ❌ (`401`) | ❌ (`403`) | ❌ (`403`) | ✅ |
+
+* **Kimlik Doğrulama Kuralı (`401 Unauthorized`):** Korumalı bir rotaya token (`Authorization: Bearer <token>`) olmadan, geçersiz token ile veya süresi dolmuş token ile istek gelirse **`401 Unauthorized`** dönülür.
+* **Yetkilendirme Kuralı (`403 Forbidden`):** Token geçerli olsa dahi kullanıcının `role` bilgisi veya kaynak sahipliği (`req.user.id === resource.user_id`) ilgili işlem için yeterli değilse **`403 Forbidden`** dönülür.
+* **Güvenlik Kuralı:** Şifreler asla düz metin (*plain text*) olarak saklanmaz; `password_hash` alanı API JSON yanıtlarından her zaman temizlenir.
 
 ---
 
@@ -103,6 +131,8 @@ erDiagram
         int id PK
         string name
         string email UK
+        string password_hash
+        string role "admin, alumni, student"
         int graduationYear
         string department
         string company

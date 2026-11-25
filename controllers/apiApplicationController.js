@@ -49,7 +49,7 @@ class ApiApplicationController {
     static applyToJob(req, res, next) {
         try {
             const jobId = req.params.id;
-            const userId = req.body.userId || req.body.user_id;
+            const userId = (req.body && (req.body.userId || req.body.user_id)) || (req.user && req.user.id);
 
             if (!userId) {
                 return res.status(400).json({ error: "Başvuru yapacak kullanıcının 'userId' bilgisi zorunludur!" });

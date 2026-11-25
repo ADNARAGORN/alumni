@@ -7,7 +7,7 @@ class UserController {
     static renderUserList(req, res, next) {
         try {
             const users = UserModel.findAll();
-            const html = UserViews.renderUserListPage(users);
+            const html = UserViews.renderUserListPage(users, null, null, req.user || null);
             return res.status(200).send(html);
         } catch (error) {
             return next(error);
@@ -21,7 +21,7 @@ class UserController {
             if (!user) {
                 return res.status(404).send('<h1>404 - Kullanıcı Bulunamadı</h1><a href="/users">Listeye Dön</a>');
             }
-            const html = UserViews.renderUserDetailPage(user);
+            const html = UserViews.renderUserDetailPage(user, req.user || null);
             return res.status(200).send(html);
         } catch (error) {
             return next(error);
@@ -44,7 +44,7 @@ class UserController {
             return res.redirect('/users');
         } catch (error) {
             const users = UserModel.findAll();
-            const html = UserViews.renderUserListPage(users, error.message);
+            const html = UserViews.renderUserListPage(users, error.message, null, req.user || null);
             return res.status(400).send(html);
         }
     }
@@ -56,7 +56,7 @@ class UserController {
             if (!user) {
                 return res.status(404).send('<h1>404 - Düzenlenecek Kullanıcı Bulunamadı</h1><a href="/users">Listeye Dön</a>');
             }
-            const html = UserViews.renderUserEditPage(user);
+            const html = UserViews.renderUserEditPage(user, null, req.user || null);
             return res.status(200).send(html);
         } catch (error) {
             return next(error);
@@ -82,7 +82,7 @@ class UserController {
             return res.redirect('/users');
         } catch (error) {
             const user = UserModel.findById(req.params.id) || { id: req.params.id, ...req.body };
-            const html = UserViews.renderUserEditPage(user, error.message);
+            const html = UserViews.renderUserEditPage(user, error.message, req.user || null);
             return res.status(400).send(html);
         }
     }

@@ -3,7 +3,7 @@ const { renderLayout, escapeHtml } = require('./layoutHelper');
 
 class AnnouncementViews {
     // 1. Liste Sayfası + Yeni Duyuru Formu
-    static renderListPage(announcements, errorMessage = null, successMessage = null) {
+    static renderListPage(announcements, errorMessage = null, successMessage = null, currentUser = null) {
         const cardsHtml = announcements.length === 0 ? `
             <div class="panel"><p class="td-muted" style="text-align:center; margin:0;">Henüz hiç duyuru yayınlanmamış.</p></div>
         ` : announcements.map(item => `
@@ -93,12 +93,13 @@ class AnnouncementViews {
         return renderLayout({
             title: 'Duyurular',
             activePath: '/announcements',
-            bodyHtml
+            bodyHtml,
+            currentUser
         });
     }
 
     // 2. Tekil Duyuru Detay Sayfası
-    static renderDetailPage(item) {
+    static renderDetailPage(item, currentUser = null) {
         const bodyHtml = `
             <div class="focused-wrap">
                 <div class="focused-card">
@@ -121,12 +122,13 @@ class AnnouncementViews {
         return renderLayout({
             title: `${item.title} · Duyuru`,
             activePath: '/announcements',
-            bodyHtml
+            bodyHtml,
+            currentUser
         });
     }
 
     // 3. Duyuru Düzenleme Sayfası
-    static renderEditPage(item, errorMessage = null) {
+    static renderEditPage(item, errorMessage = null, currentUser = null) {
         const alertError = errorMessage
             ? `<div class="alert alert-danger"><strong>Hata:</strong> ${escapeHtml(errorMessage)}</div>`
             : '';
@@ -173,7 +175,8 @@ class AnnouncementViews {
         return renderLayout({
             title: `Düzenle · ${item.title}`,
             activePath: '/announcements',
-            bodyHtml
+            bodyHtml,
+            currentUser
         });
     }
 }

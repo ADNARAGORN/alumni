@@ -3,14 +3,17 @@ const { renderLayout, escapeHtml } = require('./layoutHelper');
 
 class UserViews {
     // 1. READ (All) & CREATE: Notion Tablo + WIRED 0px Form
-    static renderUserListPage(users, errorMessage = null, successMessage = null) {
+    static renderUserListPage(users, errorMessage = null, successMessage = null, currentUser = null) {
         const rowsHtml = users.length === 0 ? `
             <tr><td colspan="7" class="td-muted" style="text-align:center; padding:28px;">Henüz kayıtlı mezun bulunmuyor.</td></tr>
         ` : users.map(user => `
             <tr>
                 <td class="td-id">#${escapeHtml(user.id)}</td>
                 <td>
-                    <div class="td-title">${escapeHtml(user.name)}</div>
+                    <div class="td-title">
+                        ${escapeHtml(user.name)}
+                        <span class="tag-square tag-navy" style="margin-left:6px;">${escapeHtml(user.role || 'alumni')}</span>
+                    </div>
                     <div class="td-muted">${escapeHtml(user.email || '-')}</div>
                 </td>
                 <td class="td-id">${escapeHtml(user.graduationYear || '-')}</td>
@@ -111,12 +114,13 @@ class UserViews {
         return renderLayout({
             title: 'Mezun Dizini',
             activePath: '/users',
-            bodyHtml
+            bodyHtml,
+            currentUser
         });
     }
 
     // 2. READ (One): Tekil Profil Detay Sayfası
-    static renderUserDetailPage(user) {
+    static renderUserDetailPage(user, currentUser = null) {
         const skillsText = Array.isArray(user.skills) && user.skills.length > 0
             ? user.skills.map(s => `<span class="tag-square tag-navy" style="margin-left:4px;">${escapeHtml(s)}</span>`).join('')
             : '<span class="td-muted">Belirtilmedi</span>';
@@ -160,15 +164,18 @@ class UserViews {
             </div>
         `;
 
+        const activePath = (currentUser && Number(currentUser.id) === Number(user.id)) ? `/users/${user.id}` : '/users';
+
         return renderLayout({
             title: `${user.name} · Profil`,
-            activePath: '/users',
-            bodyHtml
+            activePath,
+            bodyHtml,
+            currentUser
         });
     }
 
     // 3. UPDATE: Düzenleme Form Sayfası
-    static renderUserEditPage(user, errorMessage = null) {
+    static renderUserEditPage(user, errorMessage = null, currentUser = null) {
         const alertError = errorMessage
             ? `<div class="alert alert-danger"><strong>Hata:</strong> ${escapeHtml(errorMessage)}</div>`
             : '';
@@ -218,7 +225,8 @@ class UserViews {
         return renderLayout({
             title: `Düzenle · ${user.name}`,
             activePath: '/users',
-            bodyHtml
+            bodyHtml,
+            currentUser
         });
     }
 }

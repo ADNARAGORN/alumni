@@ -92,6 +92,23 @@ class ApplicationModel {
         return newApplication;
     }
 
+    // ADMIN: Başvuru durumunu güncelle (applied / interview / accepted / rejected)
+    static updateStatus(id, newStatus) {
+        const ALLOWED_STATUSES = ['applied', 'interview', 'accepted', 'rejected'];
+        const normalized = String(newStatus || '').trim().toLowerCase();
+        if (!ALLOWED_STATUSES.includes(normalized)) {
+            const err = new Error(`VALIDATION_ERROR: Geçersiz başvuru durumu '${newStatus}'. İzin verilenler: ${ALLOWED_STATUSES.join(', ')}.`);
+            err.statusCode = 400;
+            throw err;
+        }
+
+        const index = applications.findIndex(a => a.id === Number(id));
+        if (index === -1) return null;
+
+        applications[index].status = normalized;
+        return applications[index];
+    }
+
     // Delete
     static delete(id) {
         const index = applications.findIndex(a => a.id === Number(id));

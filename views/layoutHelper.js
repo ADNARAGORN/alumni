@@ -1,5 +1,7 @@
 // views/layoutHelper.js
-// Tüm HTML View sayfaları için ortak Apple/Claude/WIRED/Notion/Tesla tasarım kabuğu (brand.md + DESIGN.md)
+// Tüm HTML View sayfaları için ortak tasarım kabuğu (brand.md + DESIGN.md) + Rol Bazlı Dinamik Navigasyon
+
+const { getNavItemsForUser } = require('../utils/navigationHelper');
 
 function escapeHtml(value) {
     if (value === null || value === undefined) return '';
@@ -11,19 +13,27 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
-function renderLayout({ title, activePath = '', bodyHtml }) {
-    const navItems = [
-        { href: '/users', label: 'Mezunlar' },
-        { href: '/jobs', label: 'İş İlanları' },
-        { href: '/applications', label: 'Başvurular' },
-        { href: '/announcements', label: 'Duyurular' },
-        { href: '/api/swagger', label: 'Swagger UI' }
-    ];
+function renderLayout({ title, activePath = '', bodyHtml, currentUser = null }) {
+    const navItems = getNavItemsForUser(currentUser);
 
     const navHtml = navItems.map(item => {
         const cls = activePath === item.href ? ' class="active"' : '';
-        return `<a href="${item.href}"${cls}>${item.label}</a>`;
+        return `<a href="${escapeHtml(item.href)}"${cls}>${escapeHtml(item.label)}</a>`;
     }).join('\n                ');
+
+    const badgeClass = (currentUser && currentUser.role === 'admin') ? 'tag-square tag-gold' : 'tag-square tag-navy';
+
+    const initialAuthHtml = currentUser
+        ? `
+            <a href="/profile" class="${badgeClass}" title="Profilime Git">${escapeHtml(currentUser.name)} · ${escapeHtml(currentUser.role)}</a>
+            <form action="/logout" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-outline btn-sm">Çıkış Yap</button>
+            </form>
+        `
+        : `
+            <a href="/login" class="btn btn-outline btn-sm">Giriş Yap</a>
+            <a href="/register" class="btn btn-primary btn-sm">Kayıt Ol</a>
+        `;
 
     return `<!DOCTYPE html>
 <html lang="tr">
@@ -44,11 +54,13 @@ function renderLayout({ title, activePath = '', bodyHtml }) {
                 <span class="brand-title">Alumni</span>
             </a>
 
-            <nav class="nav-links">
+            <nav class="nav-links" id="main-nav-links">
                 ${navHtml}
             </nav>
 
-            <a href="/" class="btn btn-primary btn-sm">Ana Sayfa</a>
+            <div class="action-row" id="nav-auth-slot">
+                ${initialAuthHtml}
+            </div>
         </div>
     </header>
 
@@ -65,12 +77,15 @@ function renderLayout({ title, activePath = '', bodyHtml }) {
             <div class="footer-links">
                 <a href="/">Ana Sayfa</a>
                 <a href="/about">Hakkımızda</a>
+                <a href="/login">Giriş Yap</a>
+                <a href="/register">Kayıt Ol</a>
                 <a href="/api/swagger">Swagger UI</a>
-                <a href="/api/health" target="_blank">API Health</a>
                 <a href="/404">404 Sayfası</a>
             </div>
         </div>
     </footer>
+
+    <script src="/js/dynamic-nav.js"></script>
 </body>
 </html>`;
 }

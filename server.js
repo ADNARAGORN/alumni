@@ -6,6 +6,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
 const loggerMiddleware = require('./middleware/loggerMiddleware');
+const attachUserMiddleware = require('./middleware/attachUserMiddleware');
 const notFoundGuardian = require('./middleware/notFoundMiddleware');
 const errorGuardian = require('./middleware/errorMiddleware');
 
@@ -18,6 +19,9 @@ app.use(loggerMiddleware);
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// 2. SIRADAKİ MIDDLEWARE: Token/Cookie varsa kullanıcı bilgisini req.user'a ekle
+app.use(attachUserMiddleware);
 
 
 
@@ -45,8 +49,18 @@ const announcementRoutes = require('./routes/announcementRoutes');
 const apiJobRoutes = require('./routes/apiJobRoutes');
 const apiApplicationRoutes = require('./routes/apiApplicationRoutes');
 const jobWebRoutes = require('./routes/jobWebRoutes');
+const authRoutes = require('./routes/authRoutes');
+const apiAuthRoutes = require('./routes/apiAuthRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const apiAdminRoutes = require('./routes/apiAdminRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 // Rotaları Express'e bağlama
+app.use('/api/auth', apiAuthRoutes);
+app.use('/api/admin', apiAdminRoutes);
+app.use('/admin', adminRoutes);
+app.use('/', profileRoutes); // /profile, /my-applications, /my-jobs, /api/profile
+app.use('/', authRoutes); // /register, /login, /logout
 app.use('/api/users', apiUserRoutes);
 app.use('/users', userRoutes);
 app.use('/api/announcements', apiAnnouncementRoutes);
@@ -89,10 +103,14 @@ app.use(notFoundGuardian);
 // 5xx Guardian Middleware: Tüm beklenmeyen sunucu hatalarını en sonda yakalar
 app.use(errorGuardian);
 
-app.listen(port, async () => {
-    console.log(`Sunucu çalışıyor: http://localhost:${port}`);
-    console.log(`Swagger dokümantasyonu için: http://localhost:${port}/api/swagger`);
-    
-    // Veritabanı bağlantısını başlat ve arayüzleri tohumla
-    await DatabaseConnection.connect();
-});
+if (require.main === module) {
+    app.listen(port, async () => {
+        console.log(`Sunucu çalışıyor: http://localhost:${port}`);
+        console.log(`Swagger dokümantasyonu için: http://localhost:${port}/api/swagger`);
+        
+        // Veritabanı bağlantısını başlat ve arayüzleri tohumla
+        await DatabaseConnection.connect();
+    });
+}
+
+module.exports = app;

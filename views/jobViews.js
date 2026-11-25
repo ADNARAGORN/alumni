@@ -3,7 +3,7 @@ const { renderLayout, escapeHtml } = require('./layoutHelper');
 
 class JobViews {
     // 1. İŞ İLANLARI SAYFASI (/jobs)
-    static renderJobsPage(jobs, users, errorMessage = null, successMessage = null) {
+    static renderJobsPage(jobs, users, errorMessage = null, successMessage = null, currentUser = null) {
         const userOptions = users.map(u => `
             <option value="${escapeHtml(u.id)}">${escapeHtml(u.name)} (${escapeHtml(u.company || 'Mezun')})</option>
         `).join('');
@@ -111,12 +111,13 @@ class JobViews {
         return renderLayout({
             title: 'İş & Staj İlanları',
             activePath: '/jobs',
-            bodyHtml
+            bodyHtml,
+            currentUser
         });
     }
 
     // 2. BAŞVURULAR SAYFASI (/applications veya /jobs/:id/applications) — Notion Data Table
-    static renderApplicationsPage(applications, users, jobs, targetJob = null, errorMessage = null, successMessage = null) {
+    static renderApplicationsPage(applications, users, jobs, targetJob = null, errorMessage = null, successMessage = null, currentUser = null) {
         const headingText = targetJob
             ? `"${escapeHtml(targetJob.title)}" Başvuruları (${applications.length})`
             : `Tüm İş Başvuruları (${applications.length})`;
@@ -207,7 +208,8 @@ class JobViews {
         return renderLayout({
             title: targetJob ? `${targetJob.title} Başvuruları` : 'İş Başvuruları',
             activePath: '/applications',
-            bodyHtml
+            bodyHtml,
+            currentUser
         });
     }
 }

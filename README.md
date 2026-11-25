@@ -84,11 +84,13 @@ graph TD
 flowchart LR
     Req([HTTP İsteği]) --> Logger[1. Logger Middleware]
     Logger --> Parsers[2. Static / JSON & URL Parsers]
-    Parsers --> Routes[3. MVC Rotaları & Controller]
-    Routes -->|Eşleşme Yoksa| Guardian404[4. 404 Guardian]
+    Parsers --> Attach[3. AttachUser JWT/Cookie]
+    Attach --> Guards[4. Auth 401 & Role/Owner 403 Guards]
+    Guards --> Routes[5. MVC Rotaları & Controller]
+    Routes -->|Eşleşme Yoksa| Guardian404[6. 404 Guardian]
     Guardian404 -->|Tarayıcı HTML| Redirect404["/404 Sayfası (public/404.html)"]
     Guardian404 -->|API / Postman| Json404["404 JSON + reason"]
-    Routes -->|Hata Fırlatılırsa| Guardian5xx[5. 5xx Error Guardian]
+    Routes -->|Hata Fırlatılırsa| Guardian5xx[7. 5xx Error Guardian]
     Guardian5xx -->|Stack Trace| FileLog["logs/error.logs & Terminal"]
     Guardian5xx -->|Güvenli Yanıt| SafeRes["4xx / 5xx JSON veya HTML + reason"]
 ```
@@ -100,6 +102,57 @@ flowchart LR
 * **🚨 5xx Guardian Middleware (`middleware/errorMiddleware.js`):** Express'in 4 parametreli `(err, req, res, next)` merkezi hata yakalayıcısıdır. Beklenmeyen tüm `500`, `502`, `503`, `504`, `509` sunucu hatalarını ve bozuk JSON (`SyntaxError` ➔ `400`) isteklerini tek noktada yakalar; `err.stack` detayını **istemciye sızdırmadan** yalnızca sunucu konsoluna ve log dosyasına yazar.
 * **📝 Kalıcı Hata Logları (`logs/error.logs` & `middleware/fileLogger.js`):** Tüm `4xx` ve `5xx` hataları zaman damgası, gerekçe ve stack trace ile birlikte kalıcı olarak `logs/error.logs` dosyasına kaydedilir.
 * **🌐 Genel 404 Sayfası (`public/404.html` & `GET /404`):** Geçersiz adreslerde kullanıcıyı *"Ooops! This page can't be found!"* uyarısıyla karşılayan, hatanın sebebini ve ana sayfa/modül yönlendirme butonlarını sunan özel 404 ekranıdır.
+
+---
+
+## 🔐 Authentication & Authorization (Kimlik Doğrulama & Yetkilendirme)
+
+Sistem, **Authentication (Kimsin? → `401 Unauthorized`)** ve **Authorization / RBAC (Yetkin var mı? → `403 Forbidden`)** katmanlarını birbirinden net biçimde ayıran bir güvenlik mimarisiyle çalışır.
+
+### 🔑 Kimlik Doğrulama (JWT + `HttpOnly` Cookie + `scrypt`)
+* **Parola Güvenliği (`utils/passwordHelper.js`):** Şifreler asla düz metin saklanmaz; her kullanıcı için rastgele tuz (*salt*) ile `crypto.scryptSync` kullanılarak tek yönlü hash (`password_hash`) üretilir ve `crypto.timingSafeEqual` ile doğrulanır. API yanıtlarında `password_hash` alanı daima temizlenir.
+* **İmzalı Token (`utils/tokenHelper.js`):** Başarılı girişte `.env` içindeki `JWT_SECRET` anahtarıyla imzalanmış **HS256 JWT** üretilir (`JWT_EXPIRES_IN=2h`).
+  * **API İstemcileri (Postman / Swagger):** `Authorization: Bearer <token>` başlığı ile kullanılır.
+  * **Web Tarayıcı:** Aynı token XSS saldırılarına karşı **`HttpOnly; SameSite=Lax`** (`alumni_token`) çerezi olarak yazılır.
+* **Güvenli Çıkış & Token İptali (`/logout`, `/api/auth/logout`):** Çıkış yapıldığında tarayıcı çerezi `Max-Age=0` ile silinir ve ilgili JWT kara listeye (*revocation list*) alınır; eski token ile tekrar istek atılırsa **`401 Unauthorized`** döner.
+* **User Enumeration Koruması:** Yanlış e-posta veya yanlış şifre durumlarının ikisinde de aynı `401` hata mesajı (`E-posta veya şifre hatalı.`) dönülür.
+
+### 🛡️ Auth & Role Middleware Katmanları
+1. **`middleware/attachUserMiddleware.js`:** Gelen Bearer Token veya çerezi doğrular ve kullanıcı bilgisini token'dan ezbere almak yerine anlık olarak `UserModel` üzerinden yükler (`req.user`). Böylece bir kullanıcının rolü admin tarafından düşürüldüğünde eski token anında yetkisini kaybeder.
+2. **`middleware/authMiddleware.js` (`requireAuth`):** Korumalı rotalarda geçerli oturum zorunlu kılar. Giriş yapmamış istekleri API'de **`401 Unauthorized`** JSON ile reddeder, tarayıcıda güvenli `next` parametresiyle `/login` sayfasına yönlendirir.
+3. **`middleware/roleMiddleware.js` (`requireRole`, `requireOwnerOrAdmin`):** Rol tabanlı erişim (**RBAC**) ve kaynak sahipliği kontrolü yapar. Yetkisiz erişimlerde API'de **`403 Forbidden`** JSON, tarayıcıda özel tasarımlı **HTTP 403** ekranı döner. Normal kullanıcıların kendi profilini güncellerken rol yükseltme (`role: "admin"`) veya ID ezme (*mass-assignment*) girişimleri engellenir.
+
+### 👥 Roller, Dinamik Navigasyon ve Kullanıcıya Özel Sayfalar
+
+Üst menü öğeleri [navigationHelper.js](./utils/navigationHelper.js) tek kaynağından (`GET /api/auth/navigation` + `public/js/dynamic-nav.js` ve SSR `layoutHelper.js`) oturumdaki kullanıcının rolüne göre dinamik olarak üretilir:
+
+| Rol | Dinamik Menü Öğeleri | Temel Yetkiler |
+| :--- | :--- | :--- |
+| **Misafir (`guest`)** | `Mezunlar` · `İş İlanları` · `Duyurular` · `Hakkımızda` | Sadece herkese açık sayfaları ve listeleri görüntüler. |
+| **`student` (Öğrenci)** *(Kayıt varsayılanı)* | `Mezunlar` · `İş İlanları` · `Başvurularım` · `Duyurular` · `Profilim` | Kendi profilini (`/profile`) ve kendi başvurularını (`/my-applications`) yönetir, ilanlara başvurur. İş ilanı açamaz (`/my-jobs` → `403`) ve admin alanına giremez. |
+| **`alumni` (Mezun)** | `Mezunlar` · `İş İlanları` · `İlanlarım` · `Başvurularım` · `Duyurular` · `Profilim` | Kendi iş/staj ilanlarını (`/my-jobs`) açar/siler, kendi ilanlarına gelen başvuruları inceler, ilanlara başvurur ve kendi profilini yönetir. |
+| **`admin` (Yönetici)** | `Mezunlar` · `İş İlanları` · `Başvurular` · `Duyurular` · `Profilim` · `Admin Panel` · `Swagger UI` | `/admin` panelinden kullanıcı ekleme/silme, rol atama (`student`/`alumni`/`admin`), tüm ilan/duyuru/başvuru durumlarını yönetme yetkisine sahiptir. |
+
+### 🧪 Hazır Test Hesapları (Geliştirme Ortamı)
+> Tüm demo hesapların başlangıç şifresi: **`123456`**
+* **Admin:** `adnan@example.com` (`role: admin`) → `/admin` yönetim paneline tam erişim
+* **Mezun:** `cagri@example.com` (`role: alumni`) → `/my-jobs`, `/my-applications`, `/profile` (`/admin` → `403`)
+* **Öğrenci:** `/register` sayfasından yeni hesap açıldığında varsayılan rol **`student`** atanır (`/my-jobs` ve `/admin` → `403`).
+
+### 🔗 Auth, Profil & Admin Endpointleri
+
+| HTTP Metodu | Endpoint | Erişim | Açıklama |
+| :--- | :--- | :--- | :--- |
+| **`GET/POST`** | `/register` · `/api/auth/register` | Public | Yeni kullanıcı kaydı (`student` / `alumni`; self-admin kapalı) |
+| **`GET/POST`** | `/login` · `/api/auth/login` | Public | Kimlik doğrulama, JWT ve `HttpOnly` cookie üretimi |
+| **`GET/POST`** | `/logout` · `/api/auth/logout` | Public | Çerezi temizler ve aktif JWT'yi kara listeye alır |
+| **`GET`** | `/api/auth/me` | Auth (`401`) | Aktif oturumdaki kullanıcı bilgisini döner |
+| **`GET`** | `/api/auth/navigation` | Public | Oturumdaki role göre dinamik menü öğelerini döner |
+| **`GET/POST`** | `/profile` · `GET /api/profile` | Auth (`401`) | Kullanıcıya özel profil, kişisel istatistik ve profil güncelleme |
+| **`GET/POST`** | `/my-applications` | Auth (`401`) | Yalnızca giriş yapan kullanıcının kendi iş başvuruları |
+| **`GET/POST`** | `/my-jobs` | `alumni`, `admin` (`403`) | Yalnızca kullanıcının kendi yayınladığı iş ilanları |
+| **`GET/POST`** | `/admin/*` | Yalnızca `admin` (`403`) | Admin yönetim paneli (kullanıcı, rol, ilan, başvuru, duyuru) |
+| **`GET/PATCH`** | `/api/admin/overview`, `/api/admin/users/:id/role`, `/api/admin/applications/:id/status` | Yalnızca `admin` (`403`) | Admin JSON yönetim API'leri |
 
 ---
 
@@ -174,6 +227,9 @@ Geliştirilmekte olan sisteme ait temel RESTful servisler aşağıdaki tabloda l
 
 ### 🖥️ Web Kullanıcı Arayüzleri (HTML Views)
 * **Ana Sayfa:** `http://localhost:3000/`
+* **Kayıt Ol / Giriş Yap / Çıkış:** `http://localhost:3000/register`, `http://localhost:3000/login`, `http://localhost:3000/logout`
+* **Kullanıcıya Özel Sayfalar:** `http://localhost:3000/profile`, `http://localhost:3000/my-applications`, `http://localhost:3000/my-jobs`
+* **Admin Paneli (`admin`):** `http://localhost:3000/admin`
 * **Kullanıcı Yönetimi:** `http://localhost:3000/users`
 * **İş İlanları:** `http://localhost:3000/jobs`
 * **İş Başvuruları:** `http://localhost:3000/applications`

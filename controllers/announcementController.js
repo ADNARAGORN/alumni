@@ -7,7 +7,7 @@ class AnnouncementController {
     static renderList(req, res, next) {
         try {
             const list = AnnouncementModel.findAll();
-            const html = AnnouncementViews.renderListPage(list);
+            const html = AnnouncementViews.renderListPage(list, null, null, req.user || null);
             return res.status(200).send(html);
         } catch (error) {
             return next(error);
@@ -21,7 +21,7 @@ class AnnouncementController {
             if (!item) {
                 return res.status(404).send('<h1>404 - Duyuru Bulunamadı</h1><a href="/announcements">Duyurulara Dön</a>');
             }
-            const html = AnnouncementViews.renderDetailPage(item);
+            const html = AnnouncementViews.renderDetailPage(item, req.user || null);
             return res.status(200).send(html);
         } catch (error) {
             return next(error);
@@ -35,7 +35,7 @@ class AnnouncementController {
             return res.redirect('/announcements');
         } catch (error) {
             const list = AnnouncementModel.findAll();
-            const html = AnnouncementViews.renderListPage(list, error.message);
+            const html = AnnouncementViews.renderListPage(list, error.message, null, req.user || null);
             return res.status(400).send(html);
         }
     }
@@ -47,7 +47,7 @@ class AnnouncementController {
             if (!item) {
                 return res.status(404).send('<h1>404 - Duyuru Bulunamadı</h1><a href="/announcements">Listeye Dön</a>');
             }
-            const html = AnnouncementViews.renderEditPage(item);
+            const html = AnnouncementViews.renderEditPage(item, null, req.user || null);
             return res.status(200).send(html);
         } catch (error) {
             return next(error);
@@ -64,7 +64,7 @@ class AnnouncementController {
             return res.redirect('/announcements');
         } catch (error) {
             const item = AnnouncementModel.findById(req.params.id) || { id: req.params.id, ...req.body };
-            const html = AnnouncementViews.renderEditPage(item, error.message);
+            const html = AnnouncementViews.renderEditPage(item, error.message, req.user || null);
             return res.status(400).send(html);
         }
     }

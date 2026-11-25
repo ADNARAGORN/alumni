@@ -17,15 +17,17 @@
                 <span class="brand-title">Alumni</span>
             </a>
 
-            <nav class="nav-links">
+            <nav class="nav-links" id="main-nav-links">
                 <a href="/users">Mezunlar</a>
                 <a href="/jobs">İş İlanları</a>
-                <a href="/applications">Başvurular</a>
                 <a href="/announcements">Duyurular</a>
-                <a href="/api/swagger">Swagger UI</a>
+                <a href="/about">Hakkımızda</a>
             </nav>
 
-            <a href="/" class="btn btn-primary btn-sm">Ana Sayfa</a>
+            <div class="action-row" id="nav-auth-slot">
+                <a href="/login" class="btn btn-outline btn-sm">Giriş Yap</a>
+                <a href="/register" class="btn btn-primary btn-sm">Kayıt Ol</a>
+            </div>
         </div>
     </header>
 
@@ -80,5 +82,6 @@
             document.getElementById('path-row').style.display = 'block';
         }
     </script>
+    <script src="/js/dynamic-nav.js"></script>
 </body>
 </html>

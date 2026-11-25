@@ -10,7 +10,7 @@ class JobController {
         try {
             const jobs = JobPostingModel.findAll();
             const users = UserModel.findAll();
-            const html = JobViews.renderJobsPage(jobs, users, req.query.error, req.query.success);
+            const html = JobViews.renderJobsPage(jobs, users, req.query.error, req.query.success, req.user || null);
             return res.status(200).send(html);
         } catch (error) {
             return next(error);
@@ -20,7 +20,7 @@ class JobController {
     // 2. YENİ İŞ İLANI OLUŞTUR (POST /jobs)
     static createJob(req, res) {
         try {
-            const userId = req.body.userId;
+            const userId = (req.body && req.body.userId) || (req.user && req.user.id);
             const jobData = {
                 title: req.body.title,
                 company: req.body.company,
@@ -33,7 +33,7 @@ class JobController {
         } catch (error) {
             const jobs = JobPostingModel.findAll();
             const users = UserModel.findAll();
-            const html = JobViews.renderJobsPage(jobs, users, error.message);
+            const html = JobViews.renderJobsPage(jobs, users, error.message, null, req.user || null);
             return res.status(400).send(html);
         }
     }
@@ -43,7 +43,7 @@ class JobController {
     static applyJob(req, res) {
         try {
             const jobId = req.params.id;
-            const userId = req.body.userId;
+            const userId = (req.body && req.body.userId) || (req.user && req.user.id);
 
             if (!userId) {
                 return res.redirect('/jobs?error=' + encodeURIComponent('Lütfen başvuran mezunu seçin!'));
@@ -67,7 +67,7 @@ class JobController {
             const applications = ApplicationModel.findAll();
             const users = UserModel.findAll();
             const jobs = JobPostingModel.findAll();
-            const html = JobViews.renderApplicationsPage(applications, users, jobs, null, req.query.error, req.query.success);
+            const html = JobViews.renderApplicationsPage(applications, users, jobs, null, req.query.error, req.query.success, req.user || null);
             return res.status(200).send(html);
         } catch (error) {
             return next(error);
@@ -86,7 +86,7 @@ class JobController {
             const applications = ApplicationModel.findByJobId(jobId);
             const users = UserModel.findAll();
             const jobs = JobPostingModel.findAll();
-            const html = JobViews.renderApplicationsPage(applications, users, jobs, targetJob, req.query.error, req.query.success);
+            const html = JobViews.renderApplicationsPage(applications, users, jobs, targetJob, req.query.error, req.query.success, req.user || null);
             return res.status(200).send(html);
         } catch (error) {
             return next(error);
